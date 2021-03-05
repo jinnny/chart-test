@@ -1,0 +1,363 @@
+body {
+  overflow-x: hidden;
+}
+.main {
+  margin-top: 100px;
+  @include respond-to() {
+    margin-top: 68px;
+  }
+}
+.main-section1 {
+  @include clearfix();
+  @include respond-to(991, 'min-width') {
+    height: calc(100vh - 100px);
+  }
+}
+.main-visual {
+  @include respond-to(991, 'min-width') {
+    width: calc(100% - 422px);
+  }
+  float: left;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  @include respond-to() {
+    height: calc(100vh - 68px);
+    width: 100%;
+  }
+  &__text {
+    position: absolute;
+    top: 24%;
+    right: 36px;
+    @include respond-to(1700,'max-width') {
+      width: 29.53%;
+    }
+    @include respond-to() {
+      width: 80%;
+      max-width: 400px;
+      left: 10%;
+      top: 10%;
+      right: auto;
+    }
+  }
+}
+.main-visual-img {
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: cover;
+  -webkit-transition: transform 3s ease;
+  -moz-transition: transform 3s ease;
+  -o-transition: transform 3s ease;
+  transition: transform 3s ease;
+  -webkit-transform: scale(1.2, 1.2) rotate(0.002deg);
+  transform: scale(1.2, 1.2) rotate(0.002deg);
+  background-image: url("../images/main/main-visual-img.png");
+  @include respond-to() {
+    background-image: url("../images/main/main-visual-img-mobile.png");
+  }
+  &.aos-animate {
+    -webkit-transform: scale(1.0, 1.0) rotate(0.002deg);
+    transform: scale(1.0, 1.0) rotate(0.002deg);
+  }
+}
+.main-right-content {
+  background: #f7f7f7;
+  width: 422px;
+  height: 100%;
+  float: right;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  @include respond-to() {
+    width: 100%;
+    padding-top: 14%;
+  }
+  .main-right__text {
+    font-family: $myeongjo;
+    color: $lPoint;
+    font-size: 2.4375rem;
+    letter-spacing: -2.93px;
+    text-align: center;
+    line-height: 1.41;
+    &-sub {
+      line-height: 1.79;
+      letter-spacing: -0.36px;
+      text-align: center;
+      color: #717171;
+      margin: 2rem 0 4.43rem;
+      @include respond-to() {
+        margin: 2rem 0 2.4rem;
+      }
+      @include respond-to(991, 'min-width') {
+        font-size: 0.9rem;
+      }
+    }
+    &-strong {
+      font-weight: 800;
+      font-family: inherit;
+      color: #0b193e;
+    }
+  }
+  .main-swiper-container {
+    width: 100%;
+    text-align: center;
+    height: calc(187px + 50px);
+    margin-bottom: 4rem;
+    @include respond-to() {
+      margin-top: 4rem;
+    }
+    .swiper-pagination-bullet-active {
+      background: #093354;
+    }
+  }
+}
+
+//프리미엄
+.main-section-premium {
+  @include respond-to(991, 'min-width') {
+    height: 490px;
+    display: flex;
+  }
+  @include respond-to() {
+    background: url("../images/main/main-premium-bg.jpg") repeat 0 0;
+  }
+  .swiper-custom-button-area {
+    margin-top: 2rem;
+    @include respond-to() {
+      width: 100%;
+      text-align: center;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+    }
+    .swiper-custom-button {
+      padding: 10px;
+      @include respond-to() {
+        padding: 10px 20px;
+        width: 60px;
+        box-sizing: border-box;
+      }
+    }
+  }
+}
+.premium-left-content {
+  padding-top: 15%;
+  box-sizing: border-box;
+  @include respond-to(991, 'min-width') {
+    padding-right: 3rem;
+    padding-top: 1rem;
+    width: 38.75%;
+    background: url("../images/main/main-premium-bg.jpg") no-repeat 0 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    background-size: cover;
+  }
+  height: 100%;
+  text-align: center;
+  background-size: cover;
+  .premium__title-img {
+    width: 62%;
+    max-width: 448px;
+  }
+}
+.premium-swiper-container {
+  @include respond-to(991, 'min-width') {
+    width: 51.25%;
+  }
+  margin: 0;
+  border-right: 1px solid #dddddd;
+  .swiper-slide {
+    text-align: center;
+    padding-top: 100px;
+    box-sizing: border-box;
+    &:after {
+      content: '';
+      width: 1px;
+      height: 80%;
+      display: block;
+      position: absolute;
+      bottom: 0;
+      background: #dddddd;
+    }
+  }
+  &-mobile {
+    margin-top: 10%;
+    padding-left: 5.2%;
+    .swiper-slide {
+      &:last-child {
+      }
+    }
+  }
+}
+
+//location
+.main-section-location {
+  background-repeat: no-repeat;
+  background-image: url("../images/main/main-location-bg.jpg");
+  background-size: cover;
+  padding-bottom: 11%;
+  @include respond-to(991, 'min-width') {
+    padding-bottom: 0;
+    height: 857px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  @include respond-to() {
+    background-image: url("../images/main/main-location-bg-mobile.png");
+  }
+  .location-text-content {
+    color: $white;
+    .location__text {
+      margin: 5rem 0 2.4rem;
+      font-size: 4.75rem;
+      line-height: 1.42;
+      letter-spacing: -5.74px;
+      font-family: $myeongjo;
+      b {
+        font-family: inherit;
+      }
+      &-bold {
+      }
+      &-sub {
+        letter-spacing: -0.98px;
+        font-size: 1.18rem;
+      }
+    }
+    @include respond-to() {
+      padding: 15% 1rem 7%;
+      text-align: center;
+      .main-location__title {
+        width: 25%;
+        max-width: 186px;
+      }
+      .location__text {
+        margin: .6rem 0 1rem;
+        font-size: 3rem;
+        letter-spacing: -3.74px;
+        &-sub {
+          letter-spacing: -0.98px;
+          font-size: 0.88rem;
+        }
+      }
+    }
+  }
+
+  .location-swiper-container {
+    width: 45.4%;
+    margin-right: 0;
+    margin-left: 9%;
+    @include respond-to() {
+      width: 100%;
+      padding: 0 5%;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    .swiper-button-area {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      z-index: 11;
+      display: flex;
+      @include respond-to() {
+        bottom: 50%;
+        left: 0;
+        width: 100%;
+      }
+    }
+    .swiper-button-next, .swiper-button-prev {
+      width: 40px;
+      height: 40px;
+      position: static;
+      margin: 0;
+      background-size: contain;
+      @include respond-to() {
+        position: absolute;
+        margin: -20px 0 0;
+      }
+    }
+    .swiper-button-next {
+      background-image: url("../images/main/main-location-next.png");
+      margin-left: 7px;
+      @include respond-to() {
+        background-image: url("../images/main/main-location-next-mobile.png");
+        margin-left: 0;
+        right: 0;
+      }
+    }
+    .swiper-button-prev {
+      background-image: url("../images/main/main-location-prev.png");
+      @include respond-to() {
+        left: 0;
+        background-image: url("../images/main/main-location-prev-mobile.png");
+      }
+    }
+  }
+}
+//지도
+.main-section-map {
+  padding: 6.625rem 0 8rem;
+  background: #e6e6e6;
+  text-align: center;
+  @include respond-to() {
+    padding: 4rem 0 6rem;
+  }
+  .main-map-header {
+    .main-map__title {
+      font-family: $myeongjo;
+      font-size: 3rem;
+      line-height: 1.41;
+      letter-spacing: -2.93px;
+      color: $darkBlue;
+      &-sub {
+        color: $darkBlue;
+        font-size: 1.3125rem;
+        letter-spacing: -1.08px;
+        font-weight: 300;
+        margin-top: 1.25rem;
+        margin-bottom: 4rem;
+        &-bold {
+          font-weight: 500;
+        }
+      }
+      &-bold {
+        font-weight: 800;
+        font-family: inherit;
+        &.color--gold {
+          color: $lPoint;
+        }
+      }
+      @include respond-to() {
+        font-size: 2.2rem;
+        &-sub {
+          font-size: 1rem;
+          margin-top: .2rem;
+          margin-bottom: 3rem;
+        }
+      }
+    }
+  }
+  .main-map-content {
+    @include respond-to(991, 'min-width') {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @include respond-to() {
+      padding: 0 5%;
+    }
+    &-text {
+      @include respond-to() {
+        margin-top: 8%;
+      }
+      @include respond-to(991, 'min-width') {
+        margin-left: 3.625rem;
+      }
+    }
+  }
+}
+
