@@ -82,7 +82,10 @@ button {
   -webkit-appearance: none;
 }
 
-input,
+input {
+  -webkit-border-radius: 0;
+}
+
 input:matches([type="password"], [type="search"]),
 input[type=text],
 textarea {

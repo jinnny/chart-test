@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+<!--  <script src="https://d3js.org/d3.v4.min.js"></script>-->
+  <script src="https://d3js.org/d3.v6.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <style>
+      .myHomePoint,.neighborPoint {
+          transition: transform 1300ms ease-in-out;
+      }
+      .graphic {
+          /*초기값 세팅*/
+          /*stroke-dashoffset: 966.672;*/
+          /*transition: stroke-dashoffset 1300ms ease-in-out;*/
+      }
+      .point-end.color--blue {stroke: #25c1ec;}
+      .chart-text-group, .chart-line-group {
+          transform: rotate(
+                  -101deg
+          );
+          transform-origin: center;
+      }
+  </style>
+</head>
+<body>
+<svg width="300" height="300" id="chart">
+  <linearGradient id="gradient-1">
+    <stop offset="0" stop-color="blue" />
+    <stop offset="1" stop-color="red" />
+  </linearGradient>
+  <linearGradient id="gradient-2">
+    <stop offset="0" stop-color="#954ce9" />
+    <stop offset="0.3" stop-color="#954ce9" />
+    <stop offset="0.6" stop-color="#24c1ed" />
+    <stop offset="1" stop-color="#24c1ed" />
+  </linearGradient>
+  <filter x="0" y="0" width="1" height="1" id="solid">
+    <feFlood flood-color="#ccc" result="bg" />
+    <feMerge>
+      <feMergeNode in="bg"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+  <defs>
+    <filter id="dropshadow" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10"/> <!-- stdDeviation is how much to blur -->
+      <feDropShadow dx="0" dy="4"
+                    flood-color="#6610f2" stdDeviation="0.5"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/> <!-- slope is the opacity of the shadow -->
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/> <!-- this contains the offset blurred image -->
+        <feMergeNode in="SourceGraphic"/> <!-- this contains the element that the filter is applied to -->
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
+<script>
+  var data = [0];
+  var svg = d3.select("svg").attr('class','chart'),
+    width = svg.attr("width"),
+    height = svg.attr("height"),
+    radius = 100,
+    g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+  // svg.append('circle').attr("fill",'#fff').attr('r', 80).attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+  //   .attr('filter','url(#dropshadow)');
+  const textArea = svg.append('rect').attr("transform", "translate(" + width / 3 + "," + height / 3 + ")").attr('width',100).attr('height', 50).attr('x',0).attr('y',0).attr('fill','#ccc')
+  const text = svg.append("text").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+    .attr("filter", "url(#solid)")
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "16 px")
+    .attr("text-anchor", "middle")
+    .attr('class','circle-percentage')
+  .attr("width", 100)
+    .text('이웃집 평균대비')
+    .attr('fill','black')  .attr("text-anchor", "middle")
+
+  text.append("tspan").data(data).attr('class','percentage').attr("fill", "green").attr('font-size', '23px').attr('dy', 25)  .attr("text-anchor", "middle")
+  text.append("tspan").text('절약!').attr('fill','black')
+  // text.call(wrap);
+  // function wrap(text, width) {
+  //   text.each(function() {
+  //     var text = d3.select(this),
+  //       words = text
+  //         .text()
+  //         .split(/\s+/)
+  //         .reverse(),
+  //       word,
+  //       line = [],
+  //       lineNumber = 0,
+  //       lineHeight = 1.1, // ems
+  //       x = text.attr("x"),
+  //       y = text.attr("y"),
+  //       dy = 0, //parseFloat(text.attr("dy")),
+  //       tspan = text
+  //         .text(null)
+  //         .append("tspan")
+  //         .attr("x", x)
+  //         .attr("y", y)
+  //         .attr("dy", dy + "em");
+  //     while ((word = words.pop())) {
+  //       line.push(word);
+  //       tspan.text(line.join(" "));
+  //       if (tspan.node().getComputedTextLength() > width) {
+  //         line.pop();
+  //         tspan.text(line.join(" "));
+  //         line = [word];
+  //         tspan = text
+  //           .append("tspan")
+  //           .attr("x", x)
+  //           .attr("y", y)
+  //           .attr("dy", ++lineNumber * lineHeight + dy + "em")
+  //           .text(word);
+  //       }
+  //     }
+  //     // this is my custom solution
+  //     if (lineNumber > 0) {
+  //       const startDy = -((lineNumber - 1) * (lineHeight / 2));
+  //       text
+  //         .selectAll("tspan")
+  //         .attr("dy", (d, i) => startDy + lineHeight * i + "em");
+  //     }
+  //   });
+  // }
+  // Generate the pie
+  var pie = d3.pie();
+
+  // Generate the arcs
+  var arc = d3.arc()
+    .innerRadius(90)
+    .outerRadius(radius)
+    .startAngle(-Math.PI / 2)
+    .endAngle(Math.PI / 2);
+
+  var arcLine = d3.arc()
+    .innerRadius(95)
+    .outerRadius(95)
+    .startAngle(-Math.PI / 2)
+    .endAngle(Math.PI / 2);
+
+  //Generate groups
+  var arcs = g.selectAll("arc")
+    .data(pie(data))
+    .enter()
+    .append("g")
+    .attr("class", "arc")
+
+  //Draw arc paths
+  arcs.append("path")
+    .attr("fill", '#eee')
+    .attr("d", arc);
+
+  //이웃 데이터 그래프
+  g.append('path').attr('fill','none').attr('d', arcLine)
+    .attr('stroke-width','8').attr('stroke','#944ce9').attr('stroke-linecap','round')
+    .attr('stroke-linejoin','round').attr('class','neighborGraphic')
+
+  //내집 데이터 그래프
+  g.append('path').attr('fill','none').attr('d', arcLine)
+    .attr('stroke-width','8').attr('stroke','green').attr('stroke-linecap','round')
+    .attr('stroke-linejoin','round').attr('class','myHomeGraphic')
+
+  var chart = d3.select("#chart");
+  var center = parseInt(chart.style("height")) / 2;
+
+  function drawNumbers(radius) {
+    //눈금표시
+    var pos = radius * 0.85;
+    const chartLineGroup = svg.append("g").attr('class', 'chart-line-group')
+    for (var num = 1; num < 20; num++) {
+      var deg = 10 * num;
+      var x = pos * Math.cos(Math.PI * (deg - 90) / 182.5);
+      var y = pos * Math.sin(Math.PI * (deg - 90) / 182.5);
+      var cx = x + center;
+      var cy = y + center;
+      if(num%2 === 0) {
+        const chartText = chartLineGroup.append("line")
+        chartText.attr("x1", cx).attr("x2", cx)
+          .attr("y1", cy).attr("y2", cy+4)
+          .attr( "transform", "rotate(" + deg + ", " + cx + ", " + cy + ")" )
+          .attr("class", "short-line")
+          .attr('stroke','#ccc')
+          // .attr('stroke','url(#gradient-1)')
+      }else {
+        const chartLine = chartLineGroup.append("line")
+        chartLine.attr("x1", cx).attr("x2", cx)
+          .attr("y1", cy).attr("y2", cy+10)
+          .attr( "transform", "rotate(" + deg + ", " + cx + ", " + cy + ")" )
+          .attr("class", "number")
+          .attr('stroke','#ccc')
+      }
+    }
+  }
+
+  drawNumbers(105);
+
+  g.append('circle').attr('class', 'neighborPoint').attr('cx', -96).attr('cy', 0).attr('r', 5).attr('fill','#944ce9').attr('stroke', '#fff').attr('stroke-width', 3).attr('filter','url(#dropshadow)')
+  // 시작과 끝 동그라미
+  g.append('circle').attr('class', 'myHomePoint').attr('cx', -96).attr('cy', 0).attr('r', 5).attr('fill','#green').attr('stroke', '#fff').attr('stroke-width', 3).attr('filter','url(#dropshadow)')
+
+  function convertProgress(my, neighbor) {
+    const max = 150000
+    const min = 0
+    const convertMy = (my / max * 100).toFixed(2)
+    const convertNeighbor = (neighbor / max * 100).toFixed(2)
+    const compare = parseInt(convertMy - convertNeighbor)
+    drawCircle(convertMy, convertNeighbor, compare)
+  }
+  // progress 그리기
+  function drawCircle(myProgress, neighborProgress, compare) {
+    const neighborOutline = document.querySelector('.neighborGraphic');
+    const neighborOutlineT = d3.select('.neighborGraphic');
+    const neighborLineL = neighborOutline.getTotalLength() || 966.672;
+    neighborOutline.style.strokeDasharray = neighborLineL;
+    neighborOutline.style.strokeDashoffset = neighborLineL;
+    const neighborOneUnit = neighborLineL/200;
+    const neighborToOffset = (neighborLineL - neighborOneUnit * neighborProgress).toFixed(2);
+    neighborOutlineT.transition().duration(1300).ease(d3.easeQuadInOut).style('stroke-dashoffset', neighborToOffset)
+
+    const neighborRotateDeg = neighborProgress * 1.825 >= 182.5 ? 182.5 : neighborProgress * 1.825
+    const neighborPoint = d3.select('.neighborPoint')
+    neighborPoint.style('transform', `rotate(${neighborRotateDeg}deg)`)
+
+    const myOutline = document.querySelector('.myHomeGraphic');
+    const myOutlineT = d3.select('.myHomeGraphic');
+    const myLineL = myOutline.getTotalLength() || 966.672;
+    myOutline.style.strokeDasharray = myLineL;
+    myOutline.style.strokeDashoffset = myLineL;
+    const myOneUnit = myLineL/200;
+    const myToOffset = (myLineL - myOneUnit * myProgress).toFixed(2);
+    myOutlineT.transition().duration(1300).ease(d3.easeQuadInOut).style('stroke-dashoffset', myToOffset)
+
+    const myRotateDeg = myProgress * 1.825 >= 182.5 ? 182.5 : myProgress * 1.825
+    const myHomePoint = d3.select('.myHomePoint')
+    myHomePoint.style('transform', `rotate(${myRotateDeg}deg)`)
+
+
+    // 가운데 수치표시
+    function countText(time,progress){
+      const textContainer = d3.select(".percentage");
+      let i = 0;
+      const intervalTime = Math.abs(time / progress)
+      if(progress > 0) {
+        const timerID = setInterval(function () {
+          i++;
+          textContainer.html(`-${i}%`);
+          if (i === Math.abs(progress)) clearInterval(timerID);
+        }, intervalTime);
+      }else {
+        const timerID = setInterval(function () {
+          i++;
+          textContainer.html(`${i}%`);
+          if (i === Math.abs(progress)) clearInterval(timerID);
+        }, intervalTime);
+      }
+
+    }
+    countText(1300,compare);
+  }
+// 우리집, 남의집
+  convertProgress(50000,80000)
+</script>
+</body>
+</html>
