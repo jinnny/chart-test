@@ -12,7 +12,7 @@
           /*transform-box: fill-box;*/
           /*transition: transform 1300ms ease-in-out;*/
       }
-      .myHomePoint {transition-delay: .5s;}
+      /*.myHomePoint {transition-delay: .5s;}*/
       .chart-text-group, .chart-line-group {
           transform: rotate(-101deg) translate(12px,-11px);
           transform-origin: center;
@@ -50,10 +50,11 @@
   const g = semiCircleSvg.append('g').attr('transform', `translate(${width/2},${height/1.1})`);
   const semiCircleDefs = semiCircleSvg.append('defs')
   const semiCircleFilter = semiCircleDefs.append('filter')
-  const filterShadow = semiCircleFilter.attr('id', 'shadow')
-  // filterShadow.append('feGaussianBlur').attr("in", "SourceAlpha").attr("stdDeviation", 10).attr("result", "blur")
+  const filterShadow = semiCircleFilter.attr('id', 'shadow').attr('x','-50%').attr('y','-50%').attr('width','200%').attr('height', '200%').attr('color-interpolation-filters','sRGB')
+  filterShadow.append('feGaussianBlur').attr("in", "SourceAlpha").attr("stdDeviation", 10).attr("result", "blur")
   filterShadow.append('feDropShadow').attr('dx',0).attr('dy', 3).attr('flood-color', '#333').attr('stdDeviation', 4).attr('flood-opacity', 0.2)
-  // filterShadow.append('feComponentTransfer').append('feFuncA').attr('type','linear').attr('slope', '0.2')
+  filterShadow.append('feComponentTransfer').append('feFuncA').attr('type','linear').attr('slope', '0.2')
+
   const feMerge = filterShadow.append("feMerge");
   feMerge.append("feMergeNode").attr("in", "offsetBlur")
   feMerge.append("feMergeNode").attr("in", "SourceGraphic");
@@ -183,7 +184,7 @@
   }
 
   drawNumbers(smallRadius + 8);
-
+  // const group = semiCircleSvg.append('g').attr('transform', `translate(${width/2},${height/1.1})`)
   g.append('circle').attr('class', 'neighborPoint').attr('cx', -115).attr('cy', 0).attr('r', 7).attr('fill','#944ce9').attr('stroke', '#fff').attr('stroke-width', 3)
   // 시작과 끝 동그라미
   g.append('circle').attr('class', 'myHomePoint').attr('cx', -130).attr('cy', 0).attr('r', 7).attr('fill','green').attr('stroke', '#fff').attr('stroke-width', 3)
@@ -224,7 +225,7 @@
     const myRotateDeg = maxPerMyRatio * 1.8 >= 180 ? 180 : maxPerMyRatio * 1.8
     const myHomePoint = d3.select('.myHomePoint')
     // myHomePoint.attr('transform', `rotate(${myRotateDeg}deg)`)
-    myHomePoint.transition().duration(1300).ease(d3.easeQuadInOut).attr('transform', `rotate(${myRotateDeg})`)
+    myHomePoint.transition().duration(1300).delay(500).ease(d3.easeQuadInOut).attr('transform', `rotate(${myRotateDeg})`)
 
     // 가운데 수치표시
     function countText(time,progress){
