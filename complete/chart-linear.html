@@ -18,12 +18,12 @@
 <body>
 </body>
 <script>
-  const width = 300
-  const height = 200
+  const linearWidth = 300
+  const linearHeight = 200
   const leftSpace = 25
   const linearBarHeight = 2
   const linearBarBorder = 15
-  const svgLinear = d3.select('body').append('svg').attr('width', width).attr('height', height)
+  const svgLinear = d3.select('body').append('svg').attr('width', linearWidth).attr('height', linearHeight)
   const defs = svgLinear.append('defs')
   const linear = defs.append('linearGradient').attr('id', 'gradientStroke')
         linear.append('stop').attr('stop-color', '#00d5bd').attr('offset', '0')
@@ -38,17 +38,18 @@
         feMerge.append("feMergeNode").attr("in", "offsetBlur")
         feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
-  svgLinear.append('rect').attr('width', width-(leftSpace*2)).attr('height', linearBarHeight).attr('stroke-width', linearBarBorder).attr('stroke-linecap','round').attr('stroke-linejoin','round').attr('stroke',color).attr("transform", "translate(" + (width-(width-(leftSpace*2)))/2 + "," + height / 2 + ")")
-  svgLinear.append('text').text('최저0원').attr("transform",  `translate(${leftSpace},${height/2+(linearBarBorder*2)})`).attr('font-size', 12).attr('fill','#bbb')
-  svgLinear.append('text').text('최대1500,00원').attr("transform", `translate(${width-leftSpace-74},${height/2+(linearBarBorder*2)})`).attr('font-size', 12).attr('fill','#bbb')
+  svgLinear.append('rect').attr('width', linearWidth-(leftSpace*2)).attr('height', linearBarHeight).attr('stroke-width', linearBarBorder).attr('stroke-linecap','round')
+            .attr('stroke-linejoin','round').attr('stroke',color).attr("transform", "translate(" + (linearWidth-(linearWidth-(leftSpace*2)))/2 + "," + linearHeight / 2 + ")")
+  svgLinear.append('text').text('최저0원').attr("transform",  `translate(${leftSpace},${linearHeight/2+(linearBarBorder*2)})`).attr('font-size', 12).attr('fill','#bbb')
+  svgLinear.append('text').text('최대1500,00원').attr("transform", `translate(${linearWidth-leftSpace-74},${linearHeight/2+(linearBarBorder*2)})`).attr('font-size', 12).attr('fill','#bbb')
 
   // 내집 마커그룹 그리기
-  const gMy = svgLinear.append("g").attr("transform", `translate(${leftSpace},${height/2-linearBarBorder})`).attr('class','myMarkerGroup')
+  const gMy = svgLinear.append("g").attr("transform", `translate(${leftSpace},${linearHeight/2-linearBarBorder})`).attr('class','myMarkerGroup')
   gMy.append('circle').attr('class', 'neighborPoint').attr('cx', 0).attr('cy', 0).attr('r', 7).attr('fill','#944ce9').attr('stroke', '#fff').attr('stroke-width', 5).attr('filter','url(#shadow)')
   gMy.append('line').attr("x1", 1).attr("x2", 1).style('stroke', 'white').attr("y1", 1).attr("y2", 8).attr('transform', 'translate(0,6)')
 
   // 이웃집 마커그룹 그리기
-  const gNeighbor = svgLinear.append("g").attr("transform", `translate(${leftSpace},${height/2-linearBarBorder})`).attr('class', 'neighborMarkerGroup')
+  const gNeighbor = svgLinear.append("g").attr("transform", `translate(${leftSpace},${linearHeight/2-linearBarBorder})`).attr('class', 'neighborMarkerGroup')
   gNeighbor.append('circle').attr('class', 'myPoint').attr('cx', 0).attr('cy', 0).attr('r', 7).attr('fill','green').attr('stroke', '#fff').attr('stroke-width', 5).attr('filter','url(#shadow)')
   gNeighbor.append('line').attr("x1", 1).attr("x2", 1).style('stroke', 'white').attr("y1", 1).attr("y2", 8).attr('transform', 'translate(0,6)')
 
@@ -59,7 +60,7 @@
     const max = 150000
     const min = 0
     const minPosition = 25
-    const maxPosition = width - minPosition
+    const maxPosition = linearWidth - minPosition
     const convert = d3.scaleLinear().domain([min,max]).range([minPosition, maxPosition]);
     const myMarkerPosition = parseInt(convert(my))
     const neighborMarkerPosition = parseInt(convert(neighbor))

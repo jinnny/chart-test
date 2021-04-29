@@ -2,97 +2,44 @@
  * Created by Eunjin Yang on 2020. 11. 21.
  * Github : http://github.com/jinnny
  */
-
 @font-face {
-  font-family: 'NotoSansKR';
-  font-weight: 200;
-  src: url('../fonts/NotoSansKR-Thin.eot');
-  src: url('../fonts/NotoSansKR-Thin.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/NotoSansKR-Thin.woff2') format('woff2'),
-  url('../fonts/NotoSansKR-Thin.woff') format('woff'),
-  url('../fonts/NotoSansKR-Thin.otf') format('opentype');
-}
-
-@font-face {
-  font-family: 'NotoSansKR';
+  font-family: 'NanumSquare';
   font-weight: 300;
-  src: url('../fonts/NotoSansKR-Light.eot');
-  src: url('../fonts/NotoSansKR-Light.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/NotoSansKR-Light.woff2') format('woff2'),
-  url('../fonts/NotoSansKR-Light.woff') format('woff'),
-  url('../fonts/NotoSansKR-Light.otf') format('opentype');
+  src: url('../fonts/NanumSquareL.eot');
+  src: url('../fonts/NanumSquareL.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/NanumSquareL.woff2') format('woff2'),
+  url('../fonts/NanumSquareL.woff') format('woff'),
+  url('../fonts/NanumSquareL.ttf') format('truetype');
 }
-/*normal*/
-@font-face {
-  font-family: 'NotoSansKR';
-  font-weight: 400;
-  src: url('../fonts/NotoSansKR-Regular.eot');
-  src: url('../fonts/NotoSansKR-Regular.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/NotoSansKR-Regular.woff2') format('woff2'),
-  url('../fonts/NotoSansKR-Regular.woff') format('woff'),
-  url('../fonts/NotoSansKR-Regular.otf') format('opentype');
-}
-
-@font-face {
-  font-family: 'NotoSansKR';
-  font-weight: 600;
-  src: url('../fonts/NotoSansKR-Medium.eot');
-  src: url('../fonts/NotoSansKR-Medium.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/NotoSansKR-Medium.woff2') format('woff2'),
-  url('../fonts/NotoSansKR-Medium.woff') format('woff'),
-  url('../fonts/NotoSansKR-Medium.otf') format('opentype');
-}
-
-/*bold*/
-@font-face {
-  font-family: 'NotoSansKR';
-  font-weight: 700;
-  src: url('../fonts/NotoSansKR-Bold.eot');
-  src: url('../fonts/NotoSansKR-Bold.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/NotoSansKR-Bold.woff2') format('woff2'),
-  url('../fonts/NotoSansKR-Bold.woff') format('woff'),
-  url('../fonts/NotoSansKR-Bold.otf') format('opentype');
-}
-
-@font-face {
-  font-family: 'NotoSansKR';
-  font-weight: 800;
-  src: url('../fonts/NotoSansKR-Black.eot');
-  src: url('../fonts/NotoSansKR-Black.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/NotoSansKR-Black.woff2') format('woff2'),
-  url('../fonts/NotoSansKR-Black.woff') format('woff'),
-  url('../fonts/NotoSansKR-Black.otf') format('opentype');
-}
-
 
 /*normal 400*/
 @font-face {
-  font-family: 'NanumMyeongjo';
+  font-family: 'NanumSquare';
   font-weight: 400;
-  src: url('../fonts/NanumMyeongjo.eot');
-  src: url('../fonts/NanumMyeongjo.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/NanumMyeongjo.woff2') format('woff2'),
-  url('../fonts/NanumMyeongjo.woff') format('woff'),
-  url('../fonts/NanumMyeongjo.ttf') format('truetype');
+  src: url('../fonts/NanumSquareR.eot');
+  src: url('../fonts/NanumSquareR.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/NanumSquareR.woff2') format('woff2'),
+  url('../fonts/NanumSquareR.woff') format('woff'),
+  url('../fonts/NanumSquareR.ttf') format('truetype');
 }
 
 /*bold 700*/
 @font-face {
-  font-family: 'NanumMyeongjo';
+  font-family: 'NanumSquare';
   font-weight: 700;
-  src: url('../fonts/NanumMyeongjoBold.eot');
-  src: url('../fonts/NanumMyeongjoBold.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/NanumMyeongjoBold.woff2') format('woff2'),
-  url('../fonts/NanumMyeongjoBold.woff') format('woff'),
-  url('../fonts/NanumMyeongjoBold.ttf') format('truetype');
+  src: url('../fonts/NanumSquareB.eot');
+  src: url('../fonts/NanumSquareB.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/NanumSquareB.woff2') format('woff2'),
+  url('../fonts/NanumSquareB.woff') format('woff'),
+  url('../fonts/NanumSquareB.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: 'NanumMyeongjo';
+  font-family: 'NanumSquare';
   font-weight: 800;
-  src: url('../fonts/NanumMyeongjoExtraBold.eot');
-  src: url('../fonts/NanumMyeongjoExtraBold.eot?#iefix') format('embedded-opentype'),
-  url('../fonts/NanumMyeongjoExtraBold.woff2') format('woff2'),
-  url('../fonts/NanumMyeongjoExtraBold.woff') format('woff'),
-  url('../fonts/NanumMyeongjoExtraBold.ttf') format('truetype');
+  src: url('../fonts/NanumSquareExtraBold.eot');
+  src: url('../fonts/NanumSquareExtraBold.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/NanumSquareExtraBold.woff2') format('woff2'),
+  url('../fonts/NanumSquareExtraBold.woff') format('woff'),
+  url('../fonts/NanumSquareExtraBold.ttf') format('truetype');
 }
