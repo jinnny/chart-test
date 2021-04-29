@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>도넛차트</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!--  <link rel="icon" type="image/png" href="assets/images/common/logo.png">-->
+  <!--  <meta id="meta_og_image" property="og:image" content="assets/images/common/logo.png">-->
+  <meta property="og:image:width" content="800">
+  <meta property="og:image:height" content="627">
+  <!--  <meta name="keywords" content="광교 Q-캠퍼스">-->
+  <!--  <link rel="canonical" href="http://www.xn&#45;&#45;cg4bkii71bc0an7d.com/">-->
+  <!--  <meta name="application-name" content="광교 Q-캠퍼스">-->
+  <!--  <meta name="msapplication-tooltip" content="광교 Q-캠퍼스">-->
+  <!--  <meta id="meta_og_title" property="og:title" content="광교 Q-캠퍼스">-->
+  <!--  <meta name="description" content="광교 Q-캠퍼스">-->
+  <!--  <meta property="og:description" content="광교 Q-캠퍼스">-->
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <script src="assets/js/vendors/jquery.min.js"></script>
+  <link rel="stylesheet" href="assets/style/chart-doughunt.css">
+  <script src="assets/js/vendors/aos.js"></script>
+  <script src="assets/js/vendors/jquery-ui.js"></script>
+  <!--  <script src="./chart-circle2-data.json"></script>-->
+</head>
+<body>
+<div class="donut-chart">
+  <div id="porcion1" class="donut-chart__item recorte"><div class="quesito ios" data-rel="21"></div></div>
+  <div id="porcion2" class="donut-chart__item recorte"><div class="quesito mac" data-rel="39"></div></div>
+  <div id="porcion3" class="donut-chart__item recorte"><div class="quesito win" data-rel="31"></div></div>
+  <div id="porcionFin" class="donut-chart__item recorte"><div class="quesito linux" data-rel="9"></div></div>
+  <p class="center-date"></p>
+</div>
+<script>
+  let jsonLocation = 'chart-cicle2-data.json';
+  $.getJSON(jsonLocation, function(data){
+    $.each(data, function(I, item){
+      const max = Math.max(...item)
+      initChart(item, max)
+    });
+  });
+
+  function initChart(items, max) {
+    for(let i=0; i<items.length; i++){
+      let str = `<div class='circle-item-area' style="transform: rotate(${5*i}deg)">`
+      const percent = Math.round((items[i]/max)*10)
+      for(let j=0; j<10; j++) {
+        const contrast = 10 - j
+        if(contrast <= percent) {
+          str += `<i class="circle-item circle-item-${contrast} is--active"></i>`
+        }else {
+          str += `<i class="circle-item circle-item-${contrast}"></i>`
+        }
+      }
+      str += '</div>'
+      $('.circle-slider').append(str);
+    }
+    for(let k=0; k<24; k++) {
+      let timeStr = `<div class='circle-time-line-item' style="transform: rotate(${15*k}deg)">`
+      if(k%2 === 0) {
+        timeStr += `<span class='circle-time-line__item'><span  style="transform: rotate(-${15*k}deg)" class='circle-time-line__time'>${k}</span></span>`
+      }else {
+        timeStr += `<span class='circle-time-line__item'></span>`
+      }
+      timeStr += '</div>'
+      $('.circle-time-line').append(timeStr);
+    }
+  }
+  $(window).on('load', function () {
+
+  })
+</script>
+</body>
+</html>

@@ -229,7 +229,7 @@
         const timerID = setInterval(function () {
           i++;
           textPercentageContainer.html(`${i}%`);
-          textPercentageText.html('초과')
+          textPercentageText.html(' 초과')
           if (i === Math.abs(progress-100)) clearInterval(timerID);
         }, intervalTime);
       }else if(progress === 100) {
@@ -243,7 +243,7 @@
         const timerID = setInterval(function () {
           i++;
           textPercentageContainer.html(`${i}%`);
-          textPercentageText.html('절약')
+          textPercentageText.html(' 절약')
           if (i === Math.abs(progress)) clearInterval(timerID);
         }, intervalTime);
       }
@@ -252,7 +252,7 @@
   }
 
   //my 우리집 사용량 , neighbor 이웃집 사용량, maxValue 최대 사용량
-  drawCircle({ my: 15000, neighbor: 15000, maxValue: 150000 })
+  drawCircle({ my: 1500, neighbor: 15000, maxValue: 150000 })
 
   //my 우리집 사용량 , neighbor 이웃집 사용량, maxValue 최대 사용량
   function setPosition({ my, neighbor, maxValue }) {
