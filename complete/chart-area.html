@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>차트</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+  <script src="../assets/js/vendors/jquery.min.js"></script>
+  <!--  <script src="https://d3js.org/d3.v4.js"></script>-->
+</head>
+<body>
+</body>
+<script>
+  function drawChart (data) {
+    const width = 300;
+    const height = 300;
+    const margin = {top: 40, right: 40, bottom: 40, left: 40};
+    const padding = 30;
+
+    const x = d3.scaleLinear()
+      .domain(d3.extent(data, d => d.date))
+      .range([margin.left, width]);
+
+    const y = d3.scaleLinear()
+      .domain([0, 500]).nice()
+      // .domain([0, d3.max(data, d => d.value)]).nice()
+      .range([height - margin.bottom, margin.top]).clamp(true)
+
+    const xAxis = g => g
+      .attr('transform', `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(x).ticks(width / 90).tickSizeOuter(0))
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('line').remove());
+
+    const yAxis = g => g
+      .attr('transform', `translate(${margin.left},0)`).style('font-size','13')
+      .call(d3.axisLeft(y))
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('line')
+        .attr('x2', width)
+        .style('stroke', '#eee'))
+      .call(g => g.selectAll('text')
+        .style('fill', '#999'))
+
+    const line = d3.line()
+      .defined(d => !isNaN(d.value1))
+      .x(d => x(d.date))
+      .y(d => y(d.value1));
+
+    const area = d3.area()
+      .x(d => x(d.date))
+      .y0(y(0))
+      .y1(d => y(d.value1));
+
+    const lineOnly = d3.line()
+      .defined(d => !isNaN(d.value2))
+      .x(d => x(d.date))
+      .y(d => y(d.value2));
+
+    const svg = d3.select('body').append('svg').style('width', width).style('height', height);
+
+    // svg.append('g').call(xAxis);
+
+    svg.append('g').call(yAxis);
+
+    const grad = svg.append('defs').append('linearGradient')
+      .attr('id', 'grad')
+      .attr('x1', '0%')
+      .attr('x2', '0%')
+      .attr('y1', '0%')
+      .attr('y2', '100%');
+
+    grad.append('stop')
+      .attr('offset', '0%')
+      .style('stop-color', 'rgba(149, 76, 233, 1)')
+      .style('stop-opacity', 1);
+
+    grad.append('stop')
+      .attr('offset', '50%')
+      .style('stop-color', 'rgba(149, 76, 233, 1)')
+      .style('stop-opacity', 0.4);
+
+    grad.append('stop')
+      .attr('offset', '100%')
+      .style('stop-color', 'rgba(149, 76, 233, 1)')
+      .style('stop-opacity', 0.2);
+
+    svg.append('path')
+      .datum(data)
+      .style('fill', 'url(#grad)')
+      .attr('d', line)
+      .attr('d', area);
+
+    svg.append('path')
+      .datum(data)
+      .attr('fill', 'none')
+      .attr('stroke', '#8F43E7')
+      .attr('stroke-width', 6)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round')
+      .attr('d', line)
+
+    svg.append('path')
+      .datum(data)
+      .attr('fill', 'none')
+      .attr('stroke', 'red')
+      .attr('stroke-width', 3)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round')
+      .attr('d', lineOnly)
+  }
+  let jsonLocation = 'chart-line-new.json';
+  $.getJSON(jsonLocation, function(data) {
+    drawChart(data.data)
+  })
+  // svg.node();
+</script>
+</html>
