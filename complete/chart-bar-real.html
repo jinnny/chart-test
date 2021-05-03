@@ -31,13 +31,13 @@
     const width = 300;
     const height = 250;
 
-    const svg = d3.select('body').append("svg").attr('width', width)
-      .attr("viewBox", [ 0, 0, width, height ]);
+    const svg = d3.select('body').append('svg').attr('width', width)
+      .attr('viewBox', [ 0, 0, width, height ]);
     const defs = svg.append('defs')
     const linear = defs.append('linearGradient').attr('id', 'gradient1').attr('gradientTransform','rotate(90)')
     linear.append('stop').attr('stop-color', '#00d5bd').attr('offset', '0')
     linear.append('stop').attr('stop-color', '#24c1ed').attr('offset', '100');
-    const color = "url('#gradient1')"
+    const color = 'url('#gradient1')'
 
     const y = d3.scaleLinear()
       .domain([ 0, 500000 ]).nice()
@@ -64,32 +64,32 @@
       .call(g => g.selectAll('line')
         .attr('x2', width)
         .style('stroke', '#f5f5f5'))
-      .call(g => g.select(".domain").remove())
-      .call(g => g.append("text")
-        .attr("x", -margin.left)
-        .attr("y", 10)
-        .attr("fill", "currentColor")
-        .attr("text-anchor", "start")
+      .call(g => g.select('.domain').remove())
+      .call(g => g.append('text')
+        .attr('x', -margin.left)
+        .attr('y', 10)
+        .attr('fill', 'currentColor')
+        .attr('text-anchor', 'start')
         .text(data.y)
       )
 
-    svg.append("g")
+    svg.append('g')
       .call(xAxis);
 
-    svg.append("g")
+    svg.append('g')
       .call(yAxis);
 
-    svg.append("g")
-      .attr("fill", color)
-      .attr("class", 'line-data')
-      .selectAll("rect")
+    svg.append('g')
+      .attr('fill', color)
+      .attr('class', 'line-data')
+      .selectAll('rect')
       .data(data)
-      .join("rect")
-      .attr("x", (d, i) => x(i) + (x.bandwidth() / 2 - 8))
-      .attr("y", d => y(d.value))
-      .attr("rx", '3%')
-      .attr("height", d => y(0) - y(d.value))
-      .attr("width", '16')
+      .join('rect')
+      .attr('x', (d, i) => x(i) + (x.bandwidth() / 2 - 8))
+      .attr('y', d => y(d.value))
+      .attr('rx', '3%')
+      .attr('height', d => y(0) - y(d.value))
+      .attr('width', '16')
       .attr('opacity', 0)
       .transition().duration(1300).ease(d3.easeQuadInOut).attr('opacity',1)
   }
