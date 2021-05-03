@@ -37,7 +37,7 @@
     const linear = defs.append('linearGradient').attr('id', 'gradient1').attr('gradientTransform','rotate(90)')
     linear.append('stop').attr('stop-color', '#00d5bd').attr('offset', '0')
     linear.append('stop').attr('stop-color', '#24c1ed').attr('offset', '100');
-    const color = 'url('#gradient1')'
+    const color = 'url(#gradient1)'
 
     const y = d3.scaleLinear()
       .domain([ 0, 500000 ]).nice()
