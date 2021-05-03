@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>bar차트</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+<!--  <script src="https://d3js.org/d3.v4.js"></script>-->
+<!--  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>-->
+  <script src="../assets/js/vendors/jquery.min.js"></script>
+
+  <!--  <script src="./chart-circle2-data.json"></script>-->
+</head>
+<body>
+</body>
+<script>
+  var yScale = d3.scaleLinear().domain([0,100,500]).range([0, 50, 100]).clamp(true)
+  var svg = d3.select('body').append('svg').attr('width', 200).attr('height', 200)
+  svg.selectAll('rect').data([10,24500,68,10000]).enter().append('rect').attr('width', 10).attr('height', function (d){ return yScale(d)})
+  .style('fill', 'blue').attr('x', function (d, i) { return i * 10}).attr('y', function (d) { return 100 - yScale(d)})
+</script>
+</html>

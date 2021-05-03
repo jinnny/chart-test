@@ -113,7 +113,7 @@
       .attr('stroke-linecap', 'round')
       .attr('d', lineOnly)
   }
-  let jsonLocation = 'chart-line-new.json';
+  let jsonLocation = 'chart-area.json';
   $.getJSON(jsonLocation, function(data) {
     drawChart(data.data)
   })

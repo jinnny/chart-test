@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>파이차트</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!--  <link rel="icon" type="image/png" href="assets/images/common/logo.png">-->
+  <!--  <meta id="meta_og_image" property="og:image" content="assets/images/common/logo.png">-->
+  <meta property="og:image:width" content="800">
+  <meta property="og:image:height" content="627">
+  <!--  <meta name="keywords" content="광교 Q-캠퍼스">-->
+  <!--  <link rel="canonical" href="http://www.xn&#45;&#45;cg4bkii71bc0an7d.com/">-->
+  <!--  <meta name="application-name" content="광교 Q-캠퍼스">-->
+  <!--  <meta name="msapplication-tooltip" content="광교 Q-캠퍼스">-->
+  <!--  <meta id="meta_og_title" property="og:title" content="광교 Q-캠퍼스">-->
+  <!--  <meta name="description" content="광교 Q-캠퍼스">-->
+  <!--  <meta property="og:description" content="광교 Q-캠퍼스">-->
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<!--  <link rel="stylesheet" href="/assets/style/chart-doughunt.css">-->
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+
+  <!--  <script src="./chart-circle2-data.json"></script>-->
+</head>
+<body>
+<script>
+  const data = [
+    {name: '<5', value: 19912018},
+    {name: '5-9', value: 20501982},
+    {name: '10-14', value: 20679786},
+    {name: '15-19', value: 21354481},
+    {name: '20-24', value: 22604232},
+    {name: '25-29', value: 21698010},
+    {name: '30-34', value: 21183639},
+    {name: '35-39', value: 19855782},
+    {name: '40-44', value: 20796128},
+    {name: '45-49', value: 21370368},
+    {name: '50-54', value: 22525490},
+    {name: '55-59', value: 21001947},
+    {name: '60-64', value: 18415681},
+    {name: '65-69', value: 14547446},
+    {name: '70-74', value: 10587721},
+    {name: '75-79', value: 7730129},
+    {name: '80-84', value: 5811429},
+    {name: '≥85', value: 5938752}
+    ]
+  const colors = [
+  "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
+  ]
+  const width = 900
+  const height = Math.min(width, 500)
+  const context = DOM.context2d(width, height),
+    canvas = context.canvas;
+  const radius = Math.min(width, height) / 2,
+    outerRadius = radius - 10;
+
+  const arc = d3
+    .arc()
+    .outerRadius(200)
+    .innerRadius(100)
+    .context(context);
+
+  const circle = d3
+    .arc()
+    .startAngle(0)
+    .endAngle(2 * Math.PI)
+    .innerRadius(0)
+    .context(context);
+
+  const pie = d3.pie().padAngle(padAngle);
+
+  const arcs = pie(data);
+
+  context.translate(width / 2, height / 2);
+
+  context.lineWidth = .5;
+  if (!hide) {
+    arcs.forEach(function(d, i) {
+      context.beginPath();
+      arc(d);
+      context.stroke();
+    });
+  }
+
+  arc.cornerRadius(cornerRadius);
+
+  context.globalAlpha = 0.5;
+  arcs.forEach(function(d, i) {
+    context.beginPath();
+    arc(d);
+    context.fillStyle = colors[i];
+    context.fill();
+  });
+
+  context.globalAlpha = 1;
+  context.beginPath();
+  arcs.forEach(arc);
+  context.strokeStyle = "#fff";
+  context.stroke();
+
+  if (!hide) {
+    const r =
+      Math.asin(
+        ((outerRadius - cornerRadius) / (innerRadius + cornerRadius)) *
+        Math.sin(padAngle)
+      ) / 2;
+    context.beginPath();
+    arcs.forEach(function(d) {
+      corner(d.startAngle + padAngle / 2, outerRadius - cornerRadius, +1);
+      corner(d.endAngle - padAngle / 2, outerRadius - cornerRadius, -1);
+      if (innerRadius > 0) {
+        corner(d.startAngle + r, innerRadius + cornerRadius, +1);
+        corner(d.endAngle - r, innerRadius + cornerRadius, -1);
+      }
+    });
+    context.strokeStyle = "#000";
+    context.stroke();
+  }
+
+  function corner(angle, radius, sign) {
+    context.save();
+    context.translate(
+      sign * cornerRadius * Math.cos(angle) +
+      Math.sqrt(radius * radius - cornerRadius * cornerRadius) *
+      Math.sin(angle),
+      sign * cornerRadius * Math.sin(angle) -
+      Math.sqrt(radius * radius - cornerRadius * cornerRadius) *
+      Math.cos(angle)
+    );
+    circle.outerRadius(cornerRadius - 1.5)();
+    context.restore();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>파이차트</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!--  <link rel="icon" type="image/png" href="assets/images/common/logo.png">-->
+  <!--  <meta id="meta_og_image" property="og:image" content="assets/images/common/logo.png">-->
+  <meta property="og:image:width" content="800">
+  <meta property="og:image:height" content="627">
+  <!--  <meta name="keywords" content="광교 Q-캠퍼스">-->
+  <!--  <link rel="canonical" href="http://www.xn&#45;&#45;cg4bkii71bc0an7d.com/">-->
+  <!--  <meta name="application-name" content="광교 Q-캠퍼스">-->
+  <!--  <meta name="msapplication-tooltip" content="광교 Q-캠퍼스">-->
+  <!--  <meta id="meta_og_title" property="og:title" content="광교 Q-캠퍼스">-->
+  <!--  <meta name="description" content="광교 Q-캠퍼스">-->
+  <!--  <meta property="og:description" content="광교 Q-캠퍼스">-->
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<!--  <link rel="stylesheet" href="/assets/style/chart-doughunt.css">-->
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+
+  <!--  <script src="./chart-circle2-data.json"></script>-->
+  <style>
+      .chart-color1 {
+          fill: #ef3e38;
+      }
+
+      .chart-color2 {
+          fill: #f25a29;
+      }
+
+      .chart-color3 {
+          fill: #fc921c;
+      }
+
+      .chart-color4 {
+          fill: #fcb040;
+      }
+
+      .chart-color5 {
+          fill: #d6df22;
+      }
+
+      .chart-color6 {
+          fill: #3ab54b;
+      }
+      .needle {
+          fill: #8a8d97;
+      }
+  </style>
+</head>
+<body>
+<script>
+  const data = [
+    {name: '<5', value: 19912018},
+    {name: '5-9', value: 20501982},
+    {name: '10-14', value: 20679786},
+    {name: '15-19', value: 21354481},
+    {name: '20-24', value: 22604232},
+    {name: '25-29', value: 21698010},
+    {name: '30-34', value: 21183639},
+    {name: '35-39', value: 19855782},
+    {name: '40-44', value: 20796128},
+    {name: '45-49', value: 21370368},
+    {name: '50-54', value: 22525490},
+    {name: '55-59', value: 21001947},
+    {name: '60-64', value: 18415681},
+    {name: '65-69', value: 14547446},
+    {name: '70-74', value: 10587721},
+    {name: '75-79', value: 7730129},
+    {name: '80-84', value: 5811429},
+    {name: '≥85', value: 5938752}
+    ]
+  margin = {
+    top: 20,
+    right: 20,
+    bottom: 30,
+    left: 20
+  };
+  const width = 500
+  const height = 500
+  const svg = d3.select("body").append("svg").attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom);
+  chart = svg.append('g').attr('transform', 'translate(' + (width + margin.left) / 2 + ', ' + (height + margin.top) / 2 + ')');
+  percent = 0.2;
+  barWidth = 20;
+  numSections = 0;
+  sectionPerc = 1 / numSections / 2;
+  padRad = 0;
+  chartInset = 0;
+  totalPercent = 1;
+  percToDeg = function(perc) {
+    return perc * 360;
+  };
+  percToRad = function(perc) {
+    return degToRad(percToDeg(perc));
+  };
+  degToRad = function(deg) {
+    return deg * Math.PI / 180;
+  };
+  arcStartRad = percToRad(totalPercent);
+  arcEndRad = arcStartRad + percToRad(sectionPerc);
+  totalPercent += 100;
+  const radius = Math.min(width, height) / 2;
+
+  segment1 = d3.arc().outerRadius(radius - chartInset).innerRadius(radius - chartInset - barWidth).startAngle(-1.58).endAngle(-1.05);
+  segment2 = d3.arc().outerRadius(radius - chartInset).innerRadius(radius - chartInset - barWidth).startAngle(-1.05).endAngle(-0.53);
+  segment3 = d3.arc().outerRadius(radius - chartInset).innerRadius(radius - chartInset - barWidth).startAngle(-0.53).endAngle(0.00);
+  segment4 = d3.arc().outerRadius(radius - chartInset).innerRadius(radius - chartInset - barWidth).startAngle(0.00).endAngle(0.53);
+  segment5 = d3.arc().outerRadius(radius - chartInset).innerRadius(radius - chartInset - barWidth).startAngle(0.53).endAngle(1.05);
+  segment6 = d3.arc().outerRadius(radius - chartInset).innerRadius(radius - chartInset - barWidth).startAngle(1.05).endAngle(1.58);
+  chart.append('path').attr('class', 'arc chart-color1').attr('d', segment1);
+  chart.append('path').attr('class', 'arc chart-color2').attr('d', segment2);
+  chart.append('path').attr('class', 'arc chart-color3').attr('d', segment3);
+  chart.append('path').attr('class', 'arc chart-color4').attr('d', segment4);
+  chart.append('path').attr('class', 'arc chart-color5').attr('d', segment5);
+  chart.append('path').attr('class', 'arc chart-color6').attr('d', segment6);
+
+  Needle = function() {
+    function Needle(len, radius1) {
+      this.len = len;
+      this.radius = radius1;
+    }
+    Needle.prototype.drawOn = function(el, perc) {
+      el.append('circle').attr('class', 'needle-center').attr('cx', 0).attr('cy', 0).attr('r', this.radius).attr('fill','none').attr('stroke', '#8a8d97').attr('stroke-width', this.radius/2);
+      // el.append('circle').attr('class', 'needle-center-circle').attr('cx', 0).attr('cy', 0).attr('r', this.radius/1.4).attr('fill', '#fff');
+      return el.append('path').attr('class', 'needle').attr('d', this.mkCmd(perc));
+    };
+    Needle.prototype.animateOn = function(el, perc) {
+      var self;
+      self = this;
+      return el.transition().delay(500).ease(d3.easeLinear).duration(3000).selectAll('.needle').tween('progress', function() {
+        return function(percentOfPercent) {
+          var progress;
+          progress = percentOfPercent * perc;
+          return d3.select(this).attr('d', self.mkCmd(progress));
+        };
+      });
+    };
+    Needle.prototype.mkCmd = function(perc) {
+      var centerX, centerY, leftX, leftY, rightX, rightY, thetaRad, topX, topY;
+      thetaRad = percToRad(perc / 2);
+      centerX = 0;
+      centerY = 0;
+      topX = centerX - this.len * Math.cos(thetaRad);
+      topY = centerY - this.len * Math.sin(thetaRad);
+      leftX = centerX - this.radius * Math.cos(thetaRad - Math.PI / 2);
+      leftY = centerY - this.radius * Math.sin(thetaRad - Math.PI / 2);
+      rightX = centerX - this.radius * Math.cos(thetaRad + Math.PI / 2);
+      rightY = centerY - this.radius * Math.sin(thetaRad + Math.PI / 2);
+      return 'M ' + leftX + ' ' + leftY + ' L ' + topX + ' ' + topY + ' L ' + rightX + ' ' + rightY;
+    };
+    return Needle;
+  }();
+
+  // const arcGenerator = d3.arc()
+  //   .outerRadius(100)
+  //   .innerRadius(50)
+  //   .startAngle(-Math.PI / 2)
+  //   .endAngle(Math.PI / 2);
+  //
+  // const pie = d3.pie()
+  //   .sort(null)
+  //   .value(d => d.value)
+  //
+  // const arcs = pie(data);
+  //
+  // const arc = svg.append("path")
+  //   .attr("transform", "translate(150,120)")
+  //   .data(arcs)
+  //   .attr("d", arcGenerator())
+  //   .append("title")
+  //   .text(d => `${d.data.name}: ${d.data.value.toLocaleString()}`);
+  //
+  // svg.append("g")
+  //   .attr("stroke", "white")
+  //   .selectAll("path")
+  //   .data(arcs)
+  //   .join("path")
+  //   .attr("fill", d => color(d.data.name))
+  //   .attr("d", arcGenerator())
+  //   .append("title")
+  //   .text(d => `${d.data.name}: ${d.data.value.toLocaleString()}`);
+
+  needle = new Needle(166, 5);
+  needle.drawOn(chart, 0);
+  needle.animateOn(chart, percent);
+</script>
+</body>
+</html>

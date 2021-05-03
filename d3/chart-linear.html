@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>선형차트</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+<!--  <script src="https://d3js.org/d3.v4.js"></script>-->
+<!--  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>-->
+  <script src="../assets/js/vendors/jquery.min.js"></script>
+
+  <!--  <script src="./chart-circle2-data.json"></script>-->
+</head>
+<body>
+  <svg></svg>
+</body>
+<script>
+  var svg = d3.select('body').append('svg').attr('width', 200).attr('height', 200)
+  var newRamp = d3.scaleLinear().domain([50000,1300000]).range(['blue','red'])
+  console.log(newRamp(100000))
+
+  var color = d3.scaleLinear()
+    .domain([-1, 0, 1])
+    .range(["red", "white", "green"]);
+
+  color(-0.5); // "rgb(255, 128, 128)"
+  color(+0.5); // "rgb(128, 192, 128)"
+</script>
+</html>

@@ -1,0 +1,183 @@
+<html>
+<head>
+<!--  <script src="https://d3js.org/d3.v4.min.js"></script>-->
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <style>
+      .point-end {
+          transition: transform 1300ms ease-in-out;
+      }
+      .graphic {
+          /*초기값 세팅*/
+          /*stroke-dashoffset: 966.672;*/
+          /*transition: stroke-dashoffset 1300ms ease-in-out;*/
+      }
+      .point-end.color--blue {stroke: #25c1ec;}
+      .chart-text-group, .chart-line-group {
+          transform: rotate(
+                  191deg
+          );
+          transform-origin: center;
+      }
+  </style>
+</head>
+<body>
+<svg width="300" height="300" id="chart">
+
+  <linearGradient id="gradient-2">
+    <stop offset="0" stop-color="#954ce9" />
+    <stop offset="0.3" stop-color="#954ce9" />
+    <stop offset="0.6" stop-color="#24c1ed" />
+    <stop offset="1" stop-color="#24c1ed" />
+  </linearGradient>
+  <defs>
+    <filter id="dropshadow" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10"/> <!-- stdDeviation is how much to blur -->
+      <feDropShadow dx="0" dy="4"
+                    flood-color="#6610f2" stdDeviation="0.5"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.1"/> <!-- slope is the opacity of the shadow -->
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/> <!-- this contains the offset blurred image -->
+        <feMergeNode in="SourceGraphic"/> <!-- this contains the element that the filter is applied to -->
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
+<script>
+  var data = [2];
+  var svg = d3.select("svg").attr('class','chart'),
+    width = svg.attr("width"),
+    height = svg.attr("height"),
+    radius = 100,
+    g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+  svg.append('circle').attr("fill",'#fff').attr('r', 80).attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+    .attr('filter','url(#dropshadow)');
+
+  const text = svg.selectAll("text")
+    .data([0])
+    .enter()
+    .append("text")
+    .text(function(d) {
+      return d;
+    })
+    .attr("transform", "translate(" + width / 2 + "," + height / 1.8 + ")")
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "16 px")
+    .attr("fill", "black")
+    .attr("text-anchor", "middle")
+    .attr('class','circle-percentage')
+
+  // Generate the pie
+  var pie = d3.pie();
+
+  // Generate the arcs
+  var arc = d3.arc()
+    .innerRadius(80)
+    .outerRadius(radius)
+    .startAngle(-Math.PI / 1.3)
+    .endAngle(Math.PI / 1.3);
+
+  var arcLine = d3.arc()
+    .innerRadius(radius)
+    .outerRadius(radius)
+    .startAngle(-Math.PI / 1.3)
+    .endAngle(Math.PI / 1.3);
+
+  //Generate groups
+  var arcs = g.selectAll("arc")
+    .data(pie(data))
+    .enter()
+    .append("g")
+    .attr("class", "arc")
+
+  //Draw arc paths
+  arcs.append("path")
+    .attr("fill", '#eee')
+    .attr("d", arc);
+
+  g.append('path').attr('fill','#fff').attr('d', arcLine)
+    .attr('stroke-width','5').attr('stroke','#fff').attr('stroke-linecap','round')
+    .attr('stroke-linejoin','round').attr('class','under')
+
+  const bar = g.append('path').attr('fill','url(#gradient-2)').attr('d', arcLine)
+    .attr('stroke-width','4').attr('stroke','url(#gradient-2)').attr('stroke-linecap','round')
+    .attr('stroke-linejoin','round').attr('class','graphic')
+  var clock = d3.select("#chart");
+  var center = parseInt(clock.style("height")) / 2;
+
+  function drawNumbers(radius) {
+    var pos = radius * 0.85;
+    const chartTextGroup = svg.append("g").attr('class', 'chart-text-group')
+    const chartLineGroup = svg.append("g").attr('class', 'chart-line-group')
+    for (var num = 1; num < 42; num++) {
+      var deg = 10 * num;
+      var x = pos * Math.cos(Math.PI * (deg - 90) / 275);
+      var y = pos * Math.sin(Math.PI * (deg - 90) / 275);
+      var cx = x + center;
+      var cy = y + center;
+      const chartLine = chartLineGroup.append("line")
+      chartLine.attr("x1", cx).attr("x2", cx+2)
+        .attr("y1", cy).attr("y2", cy+2)
+        .attr( "transform", "rotate(" + deg + ", " + cx + ", " + cy + ")" )
+        .attr("class", "number")
+      .attr('stroke','#ccc').attr('stroke-width', '2px')
+      if(num === 10 || num === 20 || num === 30 ) {
+        const chartText = chartTextGroup.append("text")
+        chartText.attr("x", cx)
+          .attr("y", cy)
+          .attr( "transform", "rotate(" + 170 + ", " + cx + ", " + cy + ")" )
+          .attr("class", "number")
+        chartText.text(num)
+      }
+    }
+  }
+
+  drawNumbers(135);
+
+  // 시작과 끝 동그라미
+  g.append('circle').attr('class', 'point-end').attr('cx', -69).attr('cy', 72).attr('r', 5).attr('fill','#fff').attr('stroke', '#944ce9').attr('stroke-width', 3);
+  g.append('circle').attr('class', 'point-start').attr('cx', -69).attr('cy', 72).attr('r', 5).attr('fill','#fff').attr('stroke', '#944ce9').attr('stroke-width', 3);
+
+  // progress 그리기
+  function drawCircle(progress) {
+    const outline = document.querySelector('.graphic');
+    const outlineT = d3.select('.graphic');
+    console.log(outline, outlineT)
+    const lineL = outline.getTotalLength() || 966.672;
+    outline.style.strokeDasharray = lineL;
+    outline.style.strokeDashoffset = lineL;
+    const oneUnit = lineL/200;
+    const toOffset = (lineL - oneUnit * progress).toFixed(2);
+    outlineT.transition().duration(1300).ease(d3.easeQuadInOut).style('stroke-dashoffset', toOffset)
+    // outline.style.strokeDashoffset = toOffset;
+
+    const rotateDeg = progress * 2.75 >= 275 ? 275 : progress * 2.75
+    const pointEnd = d3.select('.point-end')
+    if (rotateDeg > 127) {
+      pointEnd.classed('color--blue', true)
+    }
+    pointEnd.style('transform', `rotate(${rotateDeg}deg)`)
+
+    // 가운데 수치표시
+    function countText(time,progress){
+      const textContainer = d3.select(".circle-percentage");
+      let i = 0;
+      const intervalTime = Math.abs(time / progress)
+      const timerID = setInterval(function () {
+        i++;
+        textContainer.html(`${i}%`);
+        if (i === progress) clearInterval(timerID);
+      }, intervalTime);
+    }
+    countText(1300,progress);
+
+
+  }
+
+  drawCircle(90)
+</script>
+</body>
+</html>

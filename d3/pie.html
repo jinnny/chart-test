@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>파이차트</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!--  <link rel="icon" type="image/png" href="assets/images/common/logo.png">-->
+  <!--  <meta id="meta_og_image" property="og:image" content="assets/images/common/logo.png">-->
+  <meta property="og:image:width" content="800">
+  <meta property="og:image:height" content="627">
+  <!--  <meta name="keywords" content="광교 Q-캠퍼스">-->
+  <!--  <link rel="canonical" href="http://www.xn&#45;&#45;cg4bkii71bc0an7d.com/">-->
+  <!--  <meta name="application-name" content="광교 Q-캠퍼스">-->
+  <!--  <meta name="msapplication-tooltip" content="광교 Q-캠퍼스">-->
+  <!--  <meta id="meta_og_title" property="og:title" content="광교 Q-캠퍼스">-->
+  <!--  <meta name="description" content="광교 Q-캠퍼스">-->
+  <!--  <meta property="og:description" content="광교 Q-캠퍼스">-->
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<!--  <link rel="stylesheet" href="/assets/style/chart-doughunt.css">-->
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+
+  <!--  <script src="./chart-circle2-data.json"></script>-->
+</head>
+<body>
+<script>
+
+  //var data = [10, 20, 30, 40, 50, 60];
+  var data = d3.range(6).map(Math.random);
+  var arcs = d3.pie().sort(null);
+  var width = 500;
+  var height = 500;
+
+  var arc = d3.arc()
+    .innerRadius(function (d,i) { if(i%2==0) return 50;
+    else return 100;})
+    .outerRadius(function (d,i) { if(i%2==0) return 100;
+    else return 200;})
+
+  var svg = d3.select("body").append("svg")
+    .attr("width",width)
+    .attr("height",height)
+
+  g = svg.append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height/ 2 +")")
+  function render(){
+    var pie = g.selectAll("path")
+      .data(arcs(data0))
+      .style("fill", function(d,i){
+        return d3.color("hsl("+(d.value*100)%100+",100%,"+ (d.value*100)%100 + "%)");
+      })
+      .attr("d", arc)
+      .enter()
+      .append("path")
+      .style("fill", function(d,i){
+        return d3.color("hsl("+(d.value*100)%100+",100%,"+ (d.value*100)%100 + "%)");
+      })
+      .attr("d", arc)
+  }
+  function update(){
+    data0 = d3.range(6).map(Math.random);
+    render();
+  }
+
+  setInterval(update,1000);
+</script>
+</body>
+</html>

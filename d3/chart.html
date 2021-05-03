@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>차트</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+
+  <!--  <script src="./chart-circle2-data.json"></script>-->
+  <style>
+    .chart {
+        text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="chart"></div>
+
+</body>
+<script>
+  const width = 320
+  const height = 240
+  const svg = d3.select('.chart').append('svg')
+  svg.attr('width', width).attr('height', height)
+  //cx 시작꼭지점(x축) cy 시작꼭지점(y축) r 반지름
+  svg.append('circle').attr('cx',160).attr('cy', 120).attr('r', 80)
+  svg.append('circle').attr('class', 'needle-center').attr('cx', 0).attr('cy', 0).attr('r', 10).attr('fill','none').attr('stroke', '#8a8d97').attr('stroke-width', 10/2);
+</script>
+</html>
