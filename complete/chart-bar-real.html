@@ -34,7 +34,7 @@
     const svg = d3.select('body').append("svg").attr('width', width)
       .attr("viewBox", [ 0, 0, width, height ]);
     const defs = svg.append('defs')
-    const linear =defs.append('linearGradient').attr('id', 'gradient1').attr('gradientTransform','rotate(90)')
+    const linear = defs.append('linearGradient').attr('id', 'gradient1').attr('gradientTransform','rotate(90)')
     linear.append('stop').attr('stop-color', '#00d5bd').attr('offset', '0')
     linear.append('stop').attr('stop-color', '#24c1ed').attr('offset', '100');
     const color = "url('#gradient1')"
@@ -50,13 +50,14 @@
 
     const xAxis = g => g
       .style('font-size', '12px')
-      .attr("transform", `translate(0,${ height - margin.bottom })`)
+      .attr('transform', `translate(0,${ height - margin.bottom })`)
       .call(d3.axisBottom(x).tickFormat(i => data[i].date).tickSizeOuter(0))
       .call(g => g.selectAll('line').remove())
+      .call(g => g.select('.domain').attr('stroke-width',0.5))
 
     const yAxis = g => g
       .style('color', '#bbb')
-      .attr("transform", `translate(${ margin.left },0)`)
+      .attr('transform', `translate(${ margin.left },0)`)
       // .call(d3.axisLeft(y).ticks(null, data.format))
       .call(d3.axisLeft(y))
       // .call(d3.axisLeft(y).ticks(10))
@@ -91,15 +92,6 @@
       .attr("width", '16')
       .attr('opacity', 0)
       .transition().duration(1300).ease(d3.easeQuadInOut).attr('opacity',1)
-
-
   }
-  $(window).on('load', function () {
-    console.log('로드')
-    // d3.json('chart-bar-real.json', function (e, data) {
-    //   drawChart(data)
-    //   console.log('안드오냐ㅕ')
-    // })
-  })
 </script>
 </html>
