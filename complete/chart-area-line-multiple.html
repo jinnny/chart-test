@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>차트</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+  <script src="../assets/js/vendors/jquery.min.js"></script>
+  <link rel="stylesheet" href="../assets/style/default.css">
+  <!--  <script src="https://d3js.org/d3.v4.js"></script>-->
+  <style>
+      .y-axis .tick:nth-child(even):not(:last-child) {
+          display: none;
+      }
+      .path {
+          -moz-animation: lineani 1.3s linear forwards;
+          -webkit-animation: lineani 1.3s linear forwards;
+          animation: lineani 1.3s linear forwards;
+      }
+      @-moz-keyframes lineani {
+          to {
+              stroke-dashoffset: 0;
+          }
+      }
+      @-webkit-keyframes lineani {
+          to {
+              stroke-dashoffset: 0;
+          }
+      }
+      @keyframes lineani {
+          to {
+              stroke-dashoffset: 0;
+          }
+      }
+  </style>
+</head>
+<body>
+</body>
+<script>
+  function drawChart (data) {
+    const width = 300;
+    const height = 270;
+    const labelHeight = 30;
+    const margin = {top: 50, right: 20, bottom: 70, left: 60};
+
+    const standardDate = data.yearMonth.split('-')
+    const standardFirstDate = new Date(standardDate[0],standardDate[1]-1,1)
+    const standardEnd = new Date(standardDate[0],standardDate[1],0)
+    const standardEndDate = standardEnd.getDate()
+
+    const x = d3.scaleTime()
+      .domain([standardFirstDate, standardEnd])
+      .range([margin.left+10, width - margin.right])
+
+    const maxY = d3.max(data.value, d => d.value1) >= d3.max(data.value, d => d.value2) ? d3.max(data.value, d => d.value1) : d3.max(data.value, d => d.value2)
+    // const maxY = data.maxValue
+    const y = d3.scaleLinear()
+      .domain([0, maxY]).nice()
+      .range([height - margin.bottom - labelHeight, margin.top]).clamp(true)
+
+    const parseDate = d3.timeParse('%Y-%m-%d')
+
+    const xAxis = g => g
+      .attr('transform', `translate(0,${height - margin.bottom + 10 - labelHeight})`)
+      .style('font-size', `12px`).style('color', '#4b4b4b').attr('font-weight', 800).attr('class', 'x-axis')
+      .call(d3.axisBottom(x).ticks(d3.timeDay.every(5)).tickFormat(d => d3.timeFormat('%d')(d).replace(/(^0+)/, '')+'d'))
+      .call(g => g.selectAll('line').remove())
+      .call(g => g.select('.domain').remove())
+      .call(startTick)
+      .call(endTick)
+
+    const xAxisFeb = g => g
+      .attr('transform', `translate(0,${height - margin.bottom + 10 - labelHeight})`)
+      .style('font-size', `12px`).style('color', '#4b4b4b').attr('font-weight', 800).attr('class', 'x-axis')
+      .call(d3.axisBottom(x).ticks(d3.timeDay.every(3)).tickFormat(d => d3.timeFormat('%d')(d).replace(/(^0+)/, '')+'d'))
+      .call(g => g.selectAll('line').remove())
+      .call(g => g.select('.domain').remove())
+
+    function startTick(selection) {
+      if(!(standardEndDate%2)) {
+        selection.append('g').attr('class', 'tick').attr('transform',`translate(${margin.left + 10}, 0)`).attr('class','fake-tick').append('text').attr('fill', 'currentColor').attr('y', 9).attr('dy', '0.71em').text('1d')
+      }
+    }
+    function endTick(selection) {
+      if(!(standardEndDate%2)) {
+        selection.append('g').attr('class', 'tick').attr('transform',`translate(${width - margin.right - 2}, 0)`).attr('class','fake-tick').append('text').attr('fill', 'currentColor').attr('y', 9).attr('dy', '0.71em').text('30d')
+      }
+    }
+
+    const yAxis = g => g
+      .attr('transform', `translate(${margin.left - 4},0)`).attr('class', 'y-axis')
+      .call(d3.axisLeft(y).tickFormat(function (d) { return d/10000 + '만원' }))
+      .call(g => g.select('.domain').remove())
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('line')
+        .attr('x2', width - margin.left)
+        .style('stroke', '#f5f5f5'))
+      .call(g => g.selectAll('text')
+        .style('fill', '#a8a8a8')).style('font-size', `12px`)
+
+    const line = d3.line()
+      .defined(d => !isNaN(d.value2))
+      .x(d => x(parseDate(d.date)))
+      .y(d => y(d.value2));
+
+    const svg = d3.select('body').append('svg').attr('width', width).attr('height', height);
+
+    if(standardEndDate === 28) {
+      svg.append('g').call(xAxisFeb);
+    }else {
+      svg.append('g').call(xAxis);
+    }
+
+    svg.append('g').call(yAxis);
+
+    //label(마커)영역
+    svg.append('rect')
+      .attr('transform', `translate(${(width-250)/2},${height - labelHeight})`)
+      .attr('width',250).attr('height', 5)
+      .attr('x',0).attr('y',0)
+      .attr('fill','#f8f8f8')
+      .attr('stroke-width','27')
+      .attr('stroke','#f8f8f8')
+      .attr('stroke-linecap','round')
+      .attr('stroke-linejoin','round')
+
+    const monthMarkerGroup = svg.append('g')
+      .attr('transform', `translate(${margin.left},${height - labelHeight + 7})`)
+      .attr('class', 'monthMarkerGroup')
+
+    const monthMarker = monthMarkerGroup.append('g')
+      .attr('transform', 'translate(-17,-4)')
+    monthMarker.append('circle')
+      .attr('class', 'myPoint')
+      .attr('cx', 0).attr('cy', 0).attr('r', 7)
+      .attr('fill', '#04baff')
+    monthMarker.append('line')
+      .attr('x1', 0).attr('x2', 12)
+      .attr('y1', 0).attr('y2', 0)
+      .attr('transform', 'translate(2,1)')
+      .style('stroke', '#04baff').attr('stroke-width','3')
+    monthMarkerGroup.append('text')
+      .text('월간 누적 금액')
+      .attr('font-size','14')
+      .attr('fill', '#4b4b4b')
+
+    const dayMarkerGroup = svg.append('g')
+      .attr('transform', `translate(180,${height - labelHeight + 7})`)
+      .attr('class', 'monthMarkerGroup')
+
+    const dayMarker = dayMarkerGroup.append('g')
+      .attr('transform', 'translate(-17,-4)')
+    dayMarker.append('circle')
+      .attr('class', 'myPoint')
+      .attr('cx', 0).attr('cy', 0).attr('r', 7)
+      .attr('fill', '#57fff2')
+    dayMarker.append('line')
+      .attr('x1', 0).attr('x2', 12)
+      .attr('y1', 0).attr('y2', 0)
+      .attr('transform', 'translate(2,1)')
+      .style('stroke', '#57fff2').attr('stroke-width','3')
+    dayMarkerGroup.append('text')
+      .text('일일 사용 금액')
+      .attr('font-size','14')
+      .attr('fill', '#4b4b4b')
+    //label 영역
+    // bar 데이터
+    svg.append('g')
+      .attr('fill', '#57fff2')
+      .attr('class', 'line-data')
+      .selectAll('rect')
+      .data(data.value)
+      .join('rect')
+      .attr('x', (d) => x(parseDate(d.date)) )
+      .attr('y', d => y(d.value1))
+      .attr('height', d => y(0) - y(d.value1))
+      .attr('width', '3')
+      .attr('opacity', 0)
+      .transition().duration(1300).ease(d3.easeQuadInOut).attr('opacity',1)
+    // bar 데이터
+    //선형데이터 라인
+    svg.append('path')
+      .datum(data.value)
+      .attr('fill', 'none')
+      .attr('stroke', '#00baff')
+      .attr('stroke-width', 3)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round')
+      .attr('d', line)
+      .attr('class', 'path')
+
+    const pathOutline = document.querySelector('.path');
+    const pathOutlineT = d3.select('.path');
+    const pathLineL = pathOutline.getTotalLength();
+    pathOutlineT.attr('stroke-dasharray', pathLineL).attr('stroke-dashoffset', pathLineL)
+
+  }
+  let jsonLocation = 'chart-area-line-multiple.json';
+  $.getJSON(jsonLocation, function(data) {
+    drawChart(data.data)
+  })
+  // svg.node();
+</script>
+</html>

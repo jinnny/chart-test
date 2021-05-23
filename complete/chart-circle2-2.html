@@ -23,6 +23,27 @@
   <link rel="stylesheet" href="../assets/style/chart-circle2.css">
 <!--  <script src="assets/js/vendors/jquery-ui.js"></script>-->
 <!--  <script src="./chart-circle2-data.json"></script>-->
+  <style>
+      .circle-item-area .circle-item {
+          width: 61px;
+          height: 150px;
+          margin: -40px auto;
+          -webkit-clip-path: polygon(7% 0,89% 0,63% 100%,35% 100%);
+          clip-path: polygon(7% 0,89% 0,63% 100%,35% 100%);
+      }
+      .circle-item-area .circle-item.is--active {
+
+      }
+      .circle-item-area .circle-item.is--active-too-small {
+      background: linear-gradient(to top, #fff, #a9ddf5)
+      }
+      .circle-item-area .circle-item.is--active-small {
+          background: linear-gradient(to top, #a9ddf5, #66cfff)
+      }
+      .circle-item-area .circle-item.is--active {
+          background: linear-gradient(to top, #a9ddf5, #66cfff, #03a9f4)
+      }
+  </style>
 </head>
 <body>
 <article class="circle-filter">
@@ -52,19 +73,28 @@
     for(let i=0; i<24; i++){
       let str = `<div class='circle-item-area' style="transform: rotate(${15.2083*i}deg)">`
       const percent = Math.round((items[i]/max)*14)
-      for(let j=0; j<14; j++) {
+      for(let j=0; j<1; j++) {
         const contrast = 14 - j
-        if(contrast <= percent) {
-          if(percent > 0 && percent < 5) {
-            str += `<i class="circle-item circle-item-${contrast} is--active-too-small"></i>`
-          }else if(percent > 6 && percent < 10) {
-            str += `<i class="circle-item circle-item-${contrast} is--active-small"></i>`
-          }else {
-            str += `<i class="circle-item circle-item-${contrast} is--active"></i>`
-          }
+        if(percent > 0 && percent < 5) {
+          str += `<i class="circle-item circle-item-${contrast} is--active-too-small"></i>`
+        }else if(percent > 6 && percent < 10) {
+          str += `<i class="circle-item circle-item-${contrast} is--active-small"></i>`
+        }else if( percent >= 10){
+          str += `<i class="circle-item circle-item-${contrast} is--active"></i>`
         }else {
           str += `<i class="circle-item circle-item-${contrast}"></i>`
         }
+        // if(contrast <= percent) {
+        //   if(percent > 0 && percent < 5) {
+        //     str += `<i class="circle-item circle-item-${contrast} is--active-too-small"></i>`
+        //   }else if(percent > 6 && percent < 10) {
+        //     str += `<i class="circle-item circle-item-${contrast} is--active-small"></i>`
+        //   }else {
+        //     str += `<i class="circle-item circle-item-${contrast} is--active"></i>`
+        //   }
+        // }else {
+        //   str += `<i class="circle-item circle-item-${contrast}"></i>`
+        // }
       }
       str += '</div>'
       $('.circle-slider').append(str);

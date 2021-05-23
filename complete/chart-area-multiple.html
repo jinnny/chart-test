@@ -40,7 +40,7 @@
     const yAxis = g => g
       .attr('transform', `translate(${margin.left},0)`)
       // .call(d3.axisLeft(y))
-      .call(d3.axisLeft(y).ticks(5).tickFormat(d => d/10000 + "만원"))
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d => d))
       .call(g => g.select('.domain').remove())
       .call(g => g.selectAll('line')
         .attr('x2', width)

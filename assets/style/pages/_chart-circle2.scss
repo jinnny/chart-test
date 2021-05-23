@@ -95,29 +95,34 @@
   .circle-item {
     width: 8px;
     height: 8px;
-    background: #eee;
+    background: transparent;
     color: #fff;
     visibility: visible;
-    margin: 2.5px auto;
-    border-radius: 50%;
+    margin: 3px auto;
     display: block;
     //justify-content: center;
     //align-items: center;
     //flex-direction: column;
     $i: 0;
-    $gutter: 10px;
-    @for $i from 0 to 11 {
+    $gutter: 30;
+    @for $i from 0 to 15 {
       &-#{$i} {
-        width: calc(#{$i}px);
-        height: calc(#{$i}px);
+        width: calc(12px + 2*#{$i}px);
+        height: 3px;
       }
     }
-    &-10, &-9 {
-      width: 8px;
-      height: 8px;
+    &-1 {
+      width: 12px;
+      height: 3px;
     }
     &.is--active {
       background: #03a9f4;
+    }
+    &.is--active-small {
+      background: #66cfff;
+    }
+    &.is--active-too-small {
+      background: #a9ddf5;
     }
   }
 }

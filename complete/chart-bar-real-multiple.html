@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>bar차트</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+  <script src="../assets/js/vendors/jquery.min.js"></script>
+  <link rel="stylesheet" href="../assets/style/default.css">
+
+  <!--  <script src="./chart-circle2-data.json"></script>-->
+</head>
+<body>
+</body>
+<script>
+  let jsonLocation = 'chart-bar-real-multiple.json';
+  $.getJSON(jsonLocation, function(data){
+    drawChart(data.data)
+    // $.each(data, function(I, item){
+    //   drawChart(data)
+    // });
+  });
+  function drawChart(data) {
+    console.log(data)
+    const margin = { top: 30, right: 0, bottom: 30, left: 60 }
+    const width = 300;
+    const height = 250;
+
+    const svg = d3.select('body').append('svg').attr('width', width)
+      .attr('viewBox', [ 0, 0, width, height ]);
+    const defs = svg.append('defs')
+    const linear = defs.append('linearGradient').attr('id', 'gradient1').attr('gradientTransform','rotate(90)')
+    linear.append('stop').attr('stop-color', '#00d5bd').attr('offset', '0')
+    linear.append('stop').attr('stop-color', '#24c1ed').attr('offset', '100');
+    const color = 'url(#gradient1)'
+
+    const y = d3.scaleLinear()
+      // .domain([ 0, 500000 ]).nice()
+      .domain([0, d3.max(data, d => d.value1 > d.value2 ? d.value1: d.value2)]).nice()
+      .range([ height - margin.bottom, margin.top ]).clamp(true)
+
+    const x = d3.scaleBand()
+      .domain(d3.range(data.length))
+      .range([ margin.left, width - margin.right ])
+      .padding(0.7)
+
+    const xAxis = g => g
+      .style('font-size', '12px')
+      .attr('transform', `translate(0,${ height - margin.bottom })`)
+      .call(d3.axisBottom(x).tickFormat(i => data[i].date).tickSizeOuter(0))
+      .call(g => g.selectAll('line').remove())
+      .call(g => g.select('.domain').attr('stroke-width',0.5))
+
+    const yAxis = g => g
+      .style('color', '#bbb')
+      .attr('transform', `translate(${ margin.left },0)`)
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d => d/10000 + "만원"))
+      // .call(d3.axisLeft(y))
+      // .call(d3.axisLeft(y).ticks(10))
+      .call(g => g.selectAll('line')
+        .attr('x2', width)
+        .style('stroke', '#f5f5f5'))
+      .call(g => g.select('.domain').remove())
+      .call(g => g.append('text')
+        .attr('x', -margin.left)
+        .attr('y', 10)
+        .attr('fill', 'currentColor')
+        .attr('text-anchor', 'start')
+        .text(data.y)
+      )
+      .call(g => g.append('text')
+        .attr('x', -120)
+        .attr('y', -45)
+        .attr('fill', 'currentColor')
+        .attr('text-anchor', 'middle')
+        .attr('transform', `rotate(269,0,0)`)
+        .text('금액(원)')
+      )
+
+    svg.append('g')
+      .call(xAxis);
+
+    svg.append('g')
+      .call(yAxis);
+
+    svg.append('g')
+      .attr('fill', color)
+      .attr('class', 'line-data')
+      .selectAll('rect')
+      .data(data)
+      .join('rect')
+      .attr('x', (d, i) => x(i) + (x.bandwidth() / 2 - 3))
+      .attr('y', d => y(d.value1))
+      // .attr('rx', '3%')
+      .attr('height', d => y(0) - y(d.value1))
+      .attr('width', '3')
+      .attr('opacity', 0)
+      .transition().duration(1300).ease(d3.easeQuadInOut).attr('opacity',1)
+
+    svg.append('g')
+      .attr('fill', '#ddd')
+      .attr('class', 'line-data')
+      .selectAll('rect')
+      .data(data)
+      .join('rect')
+      .attr('x', (d, i) => x(i) + (x.bandwidth() / 2 - 8 + 10))
+      .attr('y', d => y(d.value2))
+      // .attr('rx', '1%')
+      .attr('height', d => y(0) - y(d.value2))
+      .attr('width', '3')
+      .attr('opacity', 0)
+      .transition().duration(1300).ease(d3.easeQuadInOut).attr('opacity',1)
+  }
+</script>
+</html>

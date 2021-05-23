@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>영역차트 데이터1</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+  <script src="../assets/js/vendors/jquery.min.js"></script>
+  <link rel="stylesheet" href="../assets/style/default.css">
+  <style>
+    /*.x-axis .tick:last-child:not(.fake-tick) {*/
+    /*    transform: translate(289px,0);*/
+    /*}*/
+    .y-axis .tick:nth-child(even):not(:last-child) {
+        display: none;
+    }
+  .path {
+      -moz-animation: lineani 1.3s linear forwards;
+      -webkit-animation: lineani 1.3s linear forwards;
+      animation: lineani 1.3s linear forwards;
+  }
+    @-moz-keyframes lineani {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+    @-webkit-keyframes lineani {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+    @keyframes lineani {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+  </style>
+</head>
+<script>
+  function drawChart (data) {
+    const width = 300;
+    const height = 320;
+    const labelHeight = 30;
+    const margin = {top: 50, right: 20, bottom: 70, left: 60};
+    const standardDate = data.yearMonth.split('-')
+    const standardFirstDate = new Date(standardDate[0],standardDate[1]-1,1)
+    const standardEnd = new Date(standardDate[0],standardDate[1],0)
+    const standardEndDate = standardEnd.getDate()
+
+    const x = d3.scaleTime()
+      .domain([standardFirstDate, standardEnd])
+      .range([margin.left+10, width - margin.right])
+
+    const maxY = d3.max(data.value, d => d.value) >= data.lastYearValue ? d3.max(data.value, d => d.value) : data.lastYearValue
+    // const maxY = data.maxValue
+    const y = d3.scaleLinear()
+      .domain([0, maxY]).nice()
+      .range([height - margin.bottom - labelHeight, margin.top]).clamp(true)
+
+    const parseDate = d3.timeParse('%Y-%m-%d')
+
+    const xAxis = g => g
+      .attr('transform', `translate(0,${height - margin.bottom + 10 - labelHeight})`)
+      .style('font-size', `12px`).style('color', '#4b4b4b').attr('font-weight', 800).attr('class', 'x-axis')
+      .call(d3.axisBottom(x).ticks(d3.timeDay.every(5)).tickFormat(d => d3.timeFormat('%d')(d).replace(/(^0+)/, '')+'d'))
+      .call(g => g.selectAll('line').remove())
+      .call(g => g.select('.domain').remove())
+      .call(startTick)
+      .call(endTick)
+
+    const xAxisFeb = g => g
+      .attr('transform', `translate(0,${height - margin.bottom + 10 - labelHeight})`)
+      .style('font-size', `12px`).style('color', '#4b4b4b').attr('font-weight', 800).attr('class', 'x-axis')
+      .call(d3.axisBottom(x).ticks(d3.timeDay.every(4)).tickFormat(d => d3.timeFormat('%d')(d).replace(/(^0+)/, '')+'d'))
+      .call(g => g.selectAll('line').remove())
+      .call(g => g.select('.domain').remove())
+      .call(g => g.append('g').attr('class', 'tick').attr('transform',`translate(287, 0)`).attr('class','fake-tick').append('text').attr('fill', 'currentColor').attr('y', 9).attr('dy', '0.71em').text('28d'))
+
+    function startTick(selection) {
+      if(!(standardEndDate%2)) {
+        selection.append('g').attr('class', 'tick').attr('transform',`translate(${margin.left + 10}, 0)`).attr('class','fake-tick').append('text').attr('fill', 'currentColor').attr('y', 9).attr('dy', '0.71em').text('1d')
+      }
+    }
+    function endTick(selection) {
+      if(!(standardEndDate%2)) {
+        selection.append('g').attr('class', 'tick').attr('transform',`translate(${width - margin.right - 2}, 0)`).attr('class','fake-tick').append('text').attr('fill', 'currentColor').attr('y', 9).attr('dy', '0.71em').text('30d')
+      }
+    }
+
+    const yAxis = g => g
+      .attr('transform', `translate(${margin.left - 4},0)`).attr('class', 'y-axis')
+      // .call(d3.axisLeft(y).ticks(5).tickFormat(function (d) { console.log(d); return d/10000 + '만원' }))
+      .call(d3.axisLeft(y).tickFormat(function (d) { console.log(d); return d/10000 + '만원' }))
+      .call(g => g.select('.domain').remove())
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('line')
+        .attr('x2', width - margin.left)
+        .style('stroke', '#f5f5f5'))
+      .call(g => g.selectAll('text')
+        .style('fill', '#a8a8a8')).style('font-size', `12px`)
+
+    const line = d3.line()
+      .defined(d => !isNaN(d.value))
+      .x(d => x(parseDate(d.date)))
+      .y(d => y(d.value));
+
+    const area = d3.area()
+      .x(d => x(parseDate(d.date)))
+      .y0(y(0))
+      .y1(d => y(d.value));
+
+    const svg = d3.select('body').append('svg').attr('width', width).attr('height', height);
+
+    if(standardEndDate === 28) {
+      svg.append('g').call(xAxisFeb);
+    }else {
+      svg.append('g').call(xAxis);
+    }
+
+    svg.append('g').call(yAxis);
+
+    //타이틀
+    const title = svg.append("text")
+      .attr("x", (width / 2))
+      .attr("y", (margin.top / 2))
+      .attr("text-anchor", "middle")
+      .attr('font-weight', 800)
+      .style("font-size", "14px")
+      .attr('fill', '#4b4b4b')
+      .text('우리집')
+    title.append('tspan').text(' 월간 ').style("font-size", "18px")
+    title.append('tspan').text('에너지 누적 사용금액')
+
+    //label 영역
+    svg.append('rect')
+      .attr('transform', `translate(${(width-200)/2},${height - labelHeight})`)
+      .attr('width',200).attr('height', 5)
+      .attr('x',0).attr('y',0)
+      .attr('fill','#f8f8f8')
+      .attr('stroke-width','27')
+      .attr('stroke','#f8f8f8')
+      .attr('stroke-linecap','round')
+      .attr('stroke-linejoin','round')
+    svg.append('text').attr('transform', `translate(${(width-158+50)/2},${height - labelHeight + 7})`).text('우리집 전년도 동일 요금').attr('font-size','14')
+    svg.append('line').attr('transform', `translate(60 ,${height - labelHeight + 2})`)
+      .attr('x1', 0)
+      .attr('y1', 0)
+      .attr('x2', 25)
+      .attr('y2', 0)
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '5,5')
+      .attr('stroke', '#ff0000')
+
+    // 작년기준선
+    const threshold = data.lastYearValue;
+    const lastYearValueLine = svg.append('line')
+      .attr('x1', margin.left)
+      .attr('y1', y(threshold))
+      .attr('x2', width)
+      .attr('y2', y(threshold))
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '5,5')
+      .attr('stroke', '#ff0000')
+
+    // 영역그라데이션추가
+    const grad = svg.append('defs').append('linearGradient')
+      .attr('id', 'grad')
+      .attr('x1', '0%')
+      .attr('x2', '0%')
+      .attr('y1', '0%')
+      .attr('y2', '100%');
+
+    grad.append('stop')
+      .attr('offset', '30%')
+      .style('stop-color', 'rgba(0, 216, 255, 0.8)')
+      .style('stop-opacity', 1);
+
+    grad.append('stop')
+      .attr('offset', '93%')
+      .style('stop-color', 'rgba(108, 0, 255, 0)')
+      .style('stop-opacity', 1);
+
+    grad.append('stop')
+      .attr('offset', '5%')
+      .style('stop-color', 'rgba(108, 0, 255, 0)')
+      .style('stop-opacity', 0.2);
+
+    svg.append('path')
+      .datum(data.value)
+      .style('fill', 'url(#grad)')
+      .attr('d', line)
+      .attr('d', area)
+      .attr('class', 'area')
+
+    const areaOutlineT = d3.select('.area')
+    const clipPath = svg.append('clipPath').attr('id', 'clip1')
+    const clip = clipPath.append('rect').attr('class','clip-path')
+    clip.attr('x', -300).attr('y', 0).attr('width', 300).attr('height', 320);
+
+    svg.append('path')
+      .datum(data.value)
+      .attr('fill', 'none')
+      .attr('stroke', '#00baff')
+      .attr('stroke-width', 3)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round')
+      .attr('d', line)
+      .attr('class', 'path')
+
+    const pathOutline = document.querySelector('.path');
+    const pathOutlineT = d3.select('.path');
+    const pathLineL = pathOutline.getTotalLength();
+
+    areaOutlineT.attr('id', 'poly-1').attr('clip-path', `url('#clip1')`)
+    pathOutlineT.attr('stroke-dasharray', pathLineL).attr('stroke-dashoffset', pathLineL)
+    clip.transition().duration(1500).ease(d3.easeQuadInOut).attr('transform', 'matrix(1,0,0,1,300,0)')
+
+  }
+  let jsonLocation = 'chart-area-alone.json';
+  $.getJSON(jsonLocation, function(data) {
+    drawChart(data.data)
+  })
+</script>
+<body>
+</body>
+</html>
