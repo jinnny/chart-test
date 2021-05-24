@@ -9,7 +9,8 @@
   <link rel="stylesheet" href="../assets/style/default.css">
   <style>
       .chart-text-group, .chart-line-group {
-          transform: rotate(-101deg) translate(12px,-11px);
+          -webkit-transform: rotate(-100deg) translate(6px,-12px);
+          transform: rotate(-100deg) translate(6px,-12px);
           transform-origin: center;
       }
       .chart-area {
@@ -21,14 +22,14 @@
 <body>
   <div class="chart-area"></div>
 <script>
-  const MY_COLOR = 'green'
-  const NEIGHBOR_COLOR = 'purple'
-  // progress 그리기
-  //my 우리집 사용량 , neighbor 이웃집 사용량, maxValue 최대 사용량
-  function drawCircle({ my, neighbor, maxValue }) {
+function drawChart(chartData) {
+    const myColor = '#fe5c5c'
+    const myColorLine = '#ed8190'
+    const neighborColor = '#0fbfb8'
+    const neighborColorLine = '#33e59a'
     const data = [0];
     const width = 300,
-      height = 150,
+      height = 160,
       radius = 134,
       smallRadius = 120,
       semiCircleSvg = d3.select('.chart-area').append('svg')
@@ -42,15 +43,18 @@
 
     const filterShadow = semiCircleFilter
       .attr('id', 'shadow')
-      .attr('x','0').attr('y','0')
-      .attr('width','200%').attr('height', '200%')
+      .attr('x','-40%').attr('y','-40%')
+      .attr('width','180%').attr('height', '180%')
 
     filterShadow.append('feGaussianBlur')
       .attr('in', 'SourceAlpha')
-      .attr('stdDeviation', 3)
+      .attr('stdDeviation', 2)
     filterShadow.append('feOffset')
       .attr('dx',0).attr('dy', 2)
       .attr('result', 'offsetblur')
+  filterShadow.append('feOffset')
+    .attr('dx',0).attr('dy', -2)
+    .attr('result', 'offsetblur')
     filterShadow.append('feComponentTransfer').append('feFuncA')
       .attr('type','linear')
       .attr('slope', '0.2')
@@ -79,86 +83,95 @@
 
     const textArea =
       semiCircleSvg.append('rect')
-        .attr('transform', `translate(${(width-120)/2},${height/1.6})`)
+        .attr('transform', `translate(${(width-120)/2},${height/1.7})`)
         .attr('width',120).attr('height', 50)
         .attr('x',0).attr('y',0)
-        .attr('fill','#e7e7e7')
+        .attr('fill','#f8f7f7')
         .attr('stroke-width','8')
-        .attr('stroke','#e7e7e7')
+        .attr('stroke','#f8f7f7')
         .attr('stroke-linecap','round')
         .attr('stroke-linejoin','round');
 
     const text =
       semiCircleSvg.append('text')
-        .attr('transform', `translate(${140},${height/1.6})`)
+        .attr('transform', `translate(${140},${height/1.7})`)
         .attr('font-family', 'NanumSquare')
+        .attr('font-weight', '800')
         .attr('font-size', '16')
         .attr('text-anchor', 'middle')
         .attr('class','circle-percentage')
         .attr('width', 100)
-        .attr('fill','black')
+        .attr('fill','#4b4b4b')
         .attr('text-anchor', 'middle')
     text.append('tspan').text('이웃집 평균대비')
       .attr('x', '10').attr('dy', '1.2em')
-      .attr('font-size', '13')
+      .attr('font-size', '14')
     text.append('tspan').data(data)
       .attr('class','text-percentage')
-      .attr('fill', 'green')
+      .attr('fill', neighborColor)
       .attr('font-size', '23')
       .attr('dy', '1.2em')
       .attr('text-anchor', 'middle')
       .attr('x',10)
       .attr('font-weight', 'bold')
     text.append('tspan').text('')
-      .attr('fill','black')
-      .attr('font-size', '13')
+      .attr('font-size', '14')
       .attr('class','text-percentage-text')
 
     // Generate the pie
     const pie = d3.pie();
 
-    //내집 영역 라인
-    const arc = d3.arc().innerRadius(radius -10).outerRadius(radius).startAngle(-Math.PI / 2).endAngle(Math.PI / 2);
-    //내집 데이터 그래프 라인
-    const arcLine = d3.arc().innerRadius(radius - 10 + 5).outerRadius(radius - 10 + 5).startAngle(-Math.PI / 2).endAngle(Math.PI / 2);
-
     //이웃집 영역 라인
-    const neighborArc = d3.arc().innerRadius(smallRadius - 10).outerRadius(smallRadius).startAngle(-Math.PI / 2).endAngle(Math.PI / 2);
+    const neighborArc = d3.arc().innerRadius(radius-2).outerRadius(radius-1).startAngle(-Math.PI / 2).endAngle(Math.PI / 2);
     //이웃집 데이터 그래프 라인
-    const neighborArcLine = d3.arc().innerRadius(smallRadius - 10 + 5).outerRadius(smallRadius - 10 + 5).startAngle(-Math.PI / 2).endAngle(Math.PI / 2);
+    const neighborArcLine = d3.arc().innerRadius(radius - 10 + 5).outerRadius(radius - 10 + 8).startAngle(-Math.PI / 2).endAngle(Math.PI / 2);
+
+    //내집 영역 라인
+    const myArc = d3.arc().innerRadius(smallRadius - 4).outerRadius(smallRadius-3).startAngle(-Math.PI / 2).endAngle(Math.PI / 2);
+    //내집 데이터 그래프 라인
+    const myArcLine = d3.arc().innerRadius(smallRadius - 10 + 6).outerRadius(smallRadius - 10 + 3).startAngle(-Math.PI / 2).endAngle(Math.PI / 2);
 
     //arc 그룹
-    var arcs = g.selectAll('arc').data(pie(data)).enter().append('g')
+    const arcs = g.selectAll('arc').data(pie(data)).enter().append('g')
       .attr('class', 'arc')
+
+    //이웃집 영역 path 그리기
+    arcs.append('path')
+      .attr('fill', '#f4f4f4')
+      .attr('d', neighborArc)
+      .attr('stroke-width','10')
+      .attr('stroke', '#f4f4f4')
+      .attr('stroke-linecap','round')
+      .attr('stroke-linejoin','round')
 
     //내집 영역 path 그리기
     arcs.append('path')
-      .attr('fill', '#eee')
-      .attr('d', arc);
-    //이웃집 영역 path 그리기
-    arcs.append('path')
-      .attr('fill', '#eee')
-      .attr('d', neighborArc);
-
-    //이웃 데이터 그래프
-    g.append('path')
-      .attr('fill','none')
-      .attr('d', neighborArcLine)
-      .attr('stroke-width','8')
-      .attr('stroke', NEIGHBOR_COLOR)
+      .attr('fill', '#f4f4f4')
+      .attr('d', myArc)
+      .attr('stroke-width','10')
+      .attr('stroke', '#f4f4f4')
       .attr('stroke-linecap','round')
       .attr('stroke-linejoin','round')
-      .attr('class','neighborGraphic')
 
     //내집 데이터 그래프
     g.append('path')
       .attr('fill','none')
-      .attr('d', arcLine)
-      .attr('stroke-width','8')
-      .attr('stroke', MY_COLOR)
+      .attr('d', myArcLine)
+      .attr('stroke-width','10')
+      .attr('stroke', myColorLine)
       .attr('stroke-linecap','round')
       .attr('stroke-linejoin','round')
       .attr('class','myHomeGraphic')
+
+    //이웃집 데이터 그래프
+    g.append('path')
+      .attr('fill','none')
+      .attr('d', neighborArcLine)
+      .attr('stroke-width','10')
+      .attr('stroke', neighborColorLine)
+      .attr('stroke-linecap','round')
+      .attr('stroke-linejoin','round')
+      .attr('class','neighborGraphic')
 
     const chart = d3.select('.semiCircleChart');
     const center = parseInt(chart.style('height')) / 2;
@@ -182,7 +195,6 @@
             .attr( 'transform', `rotate(${deg},${cx},${cy})` )
             .attr('class', 'short-line')
             .attr('stroke','#ccc')
-          // .attr('stroke','url(#gradient-1)')
         }else {
           const chartLine = chartLineGroup.append('line')
           chartLine.attr('x1', cx).attr('x2', cx)
@@ -194,29 +206,29 @@
       }
     }
 
-    drawNumbers(smallRadius + 8);
-    // const group = semiCircleSvg.append('g').attr('transform', `translate(${width/2},${height/1.1})`)
+    drawNumbers(smallRadius+10);
+
     g.append('circle')
-      .attr('class', 'neighborPoint')
-      .attr('cx', -115).attr('cy', 0).attr('r', 7)
-      .attr('fill', NEIGHBOR_COLOR)
+      .attr('class', 'myHomePoint')
+      .attr('cx', -117).attr('cy', 0).attr('r', 7)
+      .attr('fill', myColor)
       .attr('stroke', '#fff')
-      .attr('stroke-width', 3)
+      .attr('stroke-width', 5)
       .attr('filter','url(#shadow)')
     // 시작과 끝 동그라미
     g.append('circle')
-      .attr('class', 'myHomePoint')
-      .attr('cx', -130).attr('cy', 0).attr('r', 7)
-      .attr('fill', MY_COLOR)
+      .attr('class', 'neighborPoint')
+      .attr('cx', -132).attr('cy', 0).attr('r', 7)
+      .attr('fill', neighborColor)
       .attr('stroke', '#fff')
-      .attr('stroke-width', 3)
+      .attr('stroke-width', 5)
       .attr('filter','url(#shadow)')
 
-    const max = maxValue
+    const max = chartData.maxValue
     const min = 0
-    const maxPerMyRatio = ((my >= max ? max: my) / max * 100).toFixed(2)
-    const maxPerNeighborRatio = ((neighbor >= max ? max: neighbor) / max * 100).toFixed(2)
-    const myPerNeighborRatio = parseInt(my/neighbor*100)
+    const maxPerMyRatio = ((chartData.my >= max ? max: chartData.my) / max * 100).toFixed(2)
+    const maxPerNeighborRatio = ((chartData.neighbor >= max ? max: chartData.neighbor) / max * 100).toFixed(2)
+    const myPerNeighborRatio = parseInt(chartData.my/chartData.neighbor*100)
 
     const neighborOutline = document.querySelector('.neighborGraphic');
     const neighborOutlineT = d3.select('.neighborGraphic');
@@ -225,12 +237,11 @@
     neighborOutline.style.strokeDashoffset = neighborLineL;
     const neighborOneUnit = neighborLineL/200;
     const neighborToOffset = (neighborLineL - neighborOneUnit * maxPerNeighborRatio).toFixed(2);
-    neighborOutlineT.transition().duration(1300).ease(d3.easeQuadInOut).style('stroke-dashoffset', neighborToOffset)
+    neighborOutlineT.transition().duration(1300).delay(500).ease(d3.easeQuadInOut).style('stroke-dashoffset', neighborToOffset)
 
     const neighborRotateDeg = maxPerNeighborRatio * 1.8 >= 180 ? 180 : maxPerNeighborRatio * 1.8
     const neighborPoint = d3.select('.neighborPoint')
-    console.log(neighborRotateDeg)
-    neighborPoint.transition().duration(1300).ease(d3.easeQuadInOut).attr('transform', `rotate(${neighborRotateDeg})`)
+    neighborPoint.transition().duration(1300).delay(500).ease(d3.easeQuadInOut).attr('transform', `rotate(${neighborRotateDeg})`)
 
     const myOutline = document.querySelector('.myHomeGraphic');
     const myOutlineT = d3.select('.myHomeGraphic');
@@ -239,12 +250,11 @@
     myOutline.style.strokeDashoffset = myLineL;
     const myOneUnit = myLineL/200;
     const myToOffset = (myLineL - myOneUnit * maxPerMyRatio).toFixed(2);
-    myOutlineT.transition().duration(1300).delay(500).ease(d3.easeQuadInOut).style('stroke-dashoffset', myToOffset)
+    myOutlineT.transition().duration(1300).ease(d3.easeQuadInOut).style('stroke-dashoffset', myToOffset)
 
     const myRotateDeg = maxPerMyRatio * 1.8 >= 180 ? 180 : maxPerMyRatio * 1.8
     const myHomePoint = d3.select('.myHomePoint')
-    // myHomePoint.attr('transform', `rotate(${myRotateDeg}deg)`)
-    myHomePoint.transition().duration(1300).delay(500).ease(d3.easeQuadInOut).attr('transform', `rotate(${myRotateDeg})`)
+    myHomePoint.transition().duration(1300).ease(d3.easeQuadInOut).attr('transform', `rotate(${myRotateDeg})`)
 
     // 가운데 수치표시
     function countText(time,progress){
@@ -256,7 +266,7 @@
         const timerID = setInterval(function () {
           i++;
           textPercentageContainer.html(`${i}%`);
-          textPercentageText.html(' 초과')
+          textPercentageText.html(' 초과!')
           if (i === Math.abs(progress-100)) clearInterval(timerID);
         }, intervalTime);
       }else if(progress === 100) {
@@ -270,131 +280,213 @@
         const timerID = setInterval(function () {
           i++;
           textPercentageContainer.html(`${i}%`);
-          textPercentageText.html(' 절약')
+          textPercentageText.html(' 절약!')
           if (i === Math.abs(progress)) clearInterval(timerID);
         }, intervalTime);
       }
     }
     countText(1300,myPerNeighborRatio);
-  }
 
-  //my 우리집 사용량 , neighbor 이웃집 사용량, maxValue 최대 사용량
-  drawCircle({ my: 1500, neighbor: 15000, maxValue: 150000 })
-
-  //my 우리집 사용량 , neighbor 이웃집 사용량, maxValue 최대 사용량
-  function setPosition({ my, neighbor, maxValue }) {
     // linear chart
     const linearWidth = 300
-    const linearHeight = 100
-    const leftSpace = 25
+    const linearHeight = 170
+    const leftSpace = 40
     const linearBarHeight = 2
-    const linearBarBorder = 15
-    const svgLinear = d3.select('.chart-area').append('svg')
+    const linearBarBorder = 10
+    const labelHeight = 34
+
+  const svgLinear = d3.select('.chart-area').append('svg')
       .attr('width', linearWidth).attr('height', linearHeight)
-      .attr('viewBox', `0 0 ${linearWidth} ${linearHeight}`)
 
     const defs = svgLinear.append('defs')
     const linear = defs.append('linearGradient').attr('id', 'gradientStroke')
     linear.append('stop')
-      .attr('stop-color', '#00d5bd')
+      .attr('stop-color', '#1fcbff')
       .attr('offset', '0')
     linear.append('stop')
-      .attr('stop-color', 'yellow')
+      .attr('stop-color', '#ffeb96')
       .attr('offset', '0.5')
     linear.append('stop')
-      .attr('stop-color', 'red')
+      .attr('stop-color', '#d55252')
       .attr('offset', '1');
 
     const color = 'url(#gradientStroke)'
 
-    const filterShadow =  defs.append('filter')
-      .attr('id', 'shadow')
-      .attr('x','0').attr('y','0')
-      .attr('width','200%').attr('height', '200%')
+    const linearFilterShadow =  defs.append('filter')
+      .attr('id', 'shadowLinear')
+      .attr('x','-40%').attr('y','-40%')
+      .attr('width','180%').attr('height', '180%')
 
-    filterShadow.append('feGaussianBlur')
+    linearFilterShadow.append('feGaussianBlur')
       .attr('in', 'SourceAlpha')
       .attr('stdDeviation', 3)
-    filterShadow.append('feOffset')
+    linearFilterShadow.append('feOffset')
       .attr('dx',0).attr('dy', 2)
       .attr('result', 'offsetblur')
-    filterShadow.append('feComponentTransfer').append('feFuncA')
+  linearFilterShadow.append('feOffset')
+    .attr('dx',0).attr('dy', -2)
+    .attr('result', 'offsetblur')
+    linearFilterShadow.append('feComponentTransfer').append('feFuncA')
       .attr('type','linear')
       .attr('slope', '0.2')
 
-    const feMerge = filterShadow.append('feMerge');
-    feMerge.append('feMergeNode');
-    feMerge.append('feMergeNode')
+    const linearFeMerge = linearFilterShadow.append('feMerge');
+    linearFeMerge.append('feMergeNode');
+    linearFeMerge.append('feMergeNode')
       .attr('in', 'SourceGraphic');
 
+    // 하단 긴 바 그래프
     svgLinear.append('rect')
       .attr('width', linearWidth-(leftSpace*2)).attr('height', linearBarHeight)
       .attr('stroke-width', linearBarBorder)
       .attr('stroke-linecap','round')
       .attr('stroke-linejoin','round')
-      .attr('stroke',color)
-      .attr('transform', 'translate(' + (linearWidth-(linearWidth-(leftSpace*2)))/2 + ',' + linearHeight / 2 + ')')
+      .attr('stroke', color)
+      .attr('transform', `translate(${(linearWidth-(linearWidth-(leftSpace*2)))/2},${linearBarHeight*2 + 35})`)
 
     svgLinear.append('text').text('최저0원')
-      .attr('transform', `translate(${leftSpace},${linearHeight/2+(linearBarBorder*2)})`)
+      .attr('transform', `translate(${leftSpace},${(linearBarBorder*2 + 35 + 10)})`)
       .attr('font-size', 12)
-      .attr('fill','#bbb')
+      .attr('fill','#bac7d1')
     svgLinear.append('text').text('최대1500,00원')
-      .attr('transform', `translate(${linearWidth-leftSpace-74},${linearHeight/2+(linearBarBorder*2)})`)
+      .attr('transform', `translate(${linearWidth-leftSpace-74},${(linearBarBorder*2 + 35 + 10)})`)
       .attr('font-size', 12)
-      .attr('fill','#bbb')
+      .attr('fill','#bac7d1')
 
     // 내집 마커그룹 그리기
     const gMy = svgLinear.append('g')
-      .attr('transform', `translate(${leftSpace},${linearHeight/2-linearBarBorder})`)
+      .attr('transform', `translate(${leftSpace},26)`)
       .attr('class','myMarkerGroup')
+    gMy.append('line')
+      .attr('x1', 0).attr('x2', 0)
+      .attr('y1', 0).attr('y2', 8)
+      .attr('transform', 'translate(0,6)')
+      .style('stroke', myColor)
     gMy.append('circle')
-      .attr('class', 'neighborPoint')
+      .attr('class', 'myPoint')
       .attr('cx', 0).attr('cy', 0).attr('r', 7)
-      .attr('fill', MY_COLOR)
+      .attr('fill', myColor)
       .attr('stroke', '#fff')
       .attr('stroke-width', 5)
-      .attr('filter', 'url(#shadow)')
-    gMy.append('line')
-      .attr('x1', 1).attr('x2', 1)
-      .attr('y1', 1).attr('y2', 8)
-      .attr('transform', 'translate(0,6)')
-      .style('stroke', 'white')
+      .attr('filter', 'url(#shadowLinear)')
 
     // 이웃집 마커그룹 그리기
     const gNeighbor = svgLinear.append('g')
-      .attr('transform', `translate(${leftSpace},${linearHeight/2-linearBarBorder})`)
+      .attr('transform', `translate(${leftSpace},18)`)
       .attr('class', 'neighborMarkerGroup')
+    gNeighbor.append('line')
+      .attr('x1', 0).attr('x2', 0)
+      .attr('y1', 0).attr('y2', 18)
+      .attr('transform', 'translate(0,6)')
+      .style('stroke', neighborColor)
     gNeighbor.append('circle')
-      .attr('class', 'myPoint')
+      .attr('class', 'neighborPoint')
       .attr('cx', 0).attr('cy', 0).attr('r', 7)
-      .attr('fill', NEIGHBOR_COLOR)
+      .attr('fill', neighborColor)
       .attr('stroke', '#fff')
       .attr('stroke-width', 5)
-      .attr('filter', 'url(#shadow)')
-    gNeighbor.append('line')
-      .attr('x1', 1).attr('x2', 1)
-      .attr('y1', 1).attr('y2', 8)
-      .attr('transform', 'translate(0,6)')
-      .style('stroke', 'white')
+      .attr('filter', 'url(#shadowLinear)')
+
 
     const myMarkerGroup = d3.select('.myMarkerGroup');
     const neighborMarkerGroup = d3.select('.neighborMarkerGroup');
 
-    const max = maxValue
-    const min = 0
+    // const linearmax = chartData.maxValue
+    // const linear = 0
     const minPosition = 25
-    const maxPosition = linearWidth - minPosition
-    const convert = d3.scaleLinear().domain([min,max]).range([minPosition, maxPosition]);
-    const myMarkerPosition = parseInt(convert(my))
-    const neighborMarkerPosition = parseInt(convert(neighbor))
-    myMarkerGroup.transition().duration(1300).delay(500).ease(d3.easeQuadInOut).attr('transform', `translate(${myMarkerPosition},${linearHeight/2-linearBarBorder})`)
-    neighborMarkerGroup.transition().duration(1300).ease(d3.easeQuadInOut).attr('transform', `translate(${neighborMarkerPosition},${linearHeight/2-linearBarBorder})`)
+    const maxPosition = linearWidth - leftSpace
+    const convert = d3.scaleLinear().domain([min,max]).range([leftSpace, maxPosition]);
+    const myMarkerPosition = parseInt(convert(chartData.my))
+    const neighborMarkerPosition = parseInt(convert(chartData.neighbor))
+    myMarkerGroup.transition().duration(1300).ease(d3.easeQuadInOut).attr('transform', `translate(${myMarkerPosition},26)`)
+    neighborMarkerGroup.transition().duration(1300).delay(500).ease(d3.easeQuadInOut).attr('transform', `translate(${neighborMarkerPosition},18)`)
+
+  //label(마커)영역
+  const margin = { top: 50, right: 0, bottom: 70, left: 60 }
+  const labelWidth = 180
+  const rankingTextGroup = svgLinear.append('g')
+    .attr('transform', `translate(${(- 30)},${(linearBarBorder*2 + 35 + 20)})`)
+    .attr('class', 'ranking')
+  const rankingText = rankingTextGroup.append('text')
+    .attr("x", ((linearWidth-margin.left) / 2 + margin.left))
+    .attr("y", (margin.top / 2))
+    .attr("text-anchor", "middle")
+    .attr('font-weight', 800)
+    .style("font-size", "14px")
+    .attr('fill', '#4b4b4b')
+    .text('우리집 절약 순위')
+    .attr('class', 'ranking-text')
+  rankingText.append('tspan').text(' 0위 ').style("font-size", "20px").attr('fill','#f27171').attr('class','ranking__rank')
+  rankingText.append('tspan').text(`(전체 ${chartData.total}가구)`)
+
+  svgLinear.append('rect')
+    .attr('transform', `translate(${(linearWidth-labelWidth)/2},${linearHeight - labelHeight})`)
+    .attr('width',labelWidth).attr('height', 5)
+    .attr('x',0).attr('y',0)
+    .attr('fill','#f8f8f8')
+    .attr('stroke-width','27')
+    .attr('stroke','#f8f8f8')
+    .attr('stroke-linecap','round')
+    .attr('stroke-linejoin','round')
+
+  const label1MarkerGroup = svgLinear.append('g')
+    .attr('transform', `translate(${margin.left + 40},${linearHeight - labelHeight + 7})`)
+    .attr('class', 'label1MarkerGroup')
+  const label1Marker = label1MarkerGroup.append('g')
+    .attr('transform', 'translate(-19,-4)')
+  label1Marker.append('circle')
+    .attr('class', 'myPoint')
+    .attr('cx', 0).attr('cy', 0).attr('r', 7)
+    .attr('fill', neighborColor)
+  label1Marker.append('line')
+    .attr('x1', 0).attr('x2', 12)
+    .attr('y1', 0).attr('y2', 0)
+    .attr('transform', 'translate(2,0)')
+    .style('stroke', neighborColor).attr('stroke-width','3')
+  label1MarkerGroup.append('text')
+    .text('이웃집')
+    .attr('font-size','14')
+    .attr('fill', '#4b4b4b')
+
+  const label2MarkerGroup = svgLinear.append('g')
+    .attr('transform', `translate(180,${linearHeight - labelHeight + 7})`)
+    .attr('class', 'label2MarkerGroup')
+
+  const label2Marker = label2MarkerGroup.append('g')
+    .attr('transform', 'translate(-19,-4)')
+  label2Marker.append('circle')
+    .attr('class', 'myPoint')
+    .attr('cx', 0).attr('cy', 0).attr('r', 7)
+    .attr('fill', myColor)
+  label2Marker.append('line')
+    .attr('x1', 0).attr('x2', 12)
+    .attr('y1', 0).attr('y2', 0)
+    .attr('transform', 'translate(2,0)')
+    .style('stroke', myColor).attr('stroke-width','3')
+  label2MarkerGroup.append('text')
+    .text('우리집')
+    .attr('font-size','14')
+    .attr('fill', '#4b4b4b')
+  //label 영역
+
+  function countRanking(ranking){
+    const time = 1300
+    const textPercentageContainer = d3.select('.ranking__rank');
+    let i = 0;
+    const intervalTime = Math.abs(time / ranking)
+    const timerID = setInterval(function () {
+      i++;
+      textPercentageContainer.html(` ${i}위 `);
+      if (i === Math.abs(ranking)) clearInterval(timerID);
+    }, intervalTime);
+  }
+  countRanking(chartData.ranking);
   }
 
-  //my 우리집 사용량 , neighbor 이웃집 사용량, maxValue 최대 사용량
-  setPosition({ my: 1500, neighbor: 15000, maxValue: 150000 })
-
+const jsonLocation = 'chart3-2.json';
+$.getJSON(jsonLocation, function(data){
+  drawChart(data)
+});
 </script>
 </body>
 </html>

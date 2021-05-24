@@ -19,50 +19,45 @@
 <script>
   let jsonLocation = 'chart-bar-real-multiple.json';
   $.getJSON(jsonLocation, function(data){
-    drawChart(data.data)
+    drawChart(data)
     // $.each(data, function(I, item){
     //   drawChart(data)
     // });
   });
   function drawChart(data) {
-    console.log(data)
-    const margin = { top: 30, right: 0, bottom: 30, left: 60 }
+    const margin = { top: 50, right: 0, bottom: 70, left: 60 }
     const width = 300;
-    const height = 250;
-
-    const svg = d3.select('body').append('svg').attr('width', width)
-      .attr('viewBox', [ 0, 0, width, height ]);
-    const defs = svg.append('defs')
-    const linear = defs.append('linearGradient').attr('id', 'gradient1').attr('gradientTransform','rotate(90)')
-    linear.append('stop').attr('stop-color', '#00d5bd').attr('offset', '0')
-    linear.append('stop').attr('stop-color', '#24c1ed').attr('offset', '100');
-    const color = 'url(#gradient1)'
-
-    const y = d3.scaleLinear()
-      // .domain([ 0, 500000 ]).nice()
-      .domain([0, d3.max(data, d => d.value1 > d.value2 ? d.value1: d.value2)]).nice()
-      .range([ height - margin.bottom, margin.top ]).clamp(true)
+    const height = 310;
+    const labelHeight = 34;
+    const endMonth = data[data.length -1].date.split('-')[1]
+    const svg = d3.select('body').append('svg').attr('width', width).attr('height', height)
+    const label1Color = '#ffba00'
+    const label2Color = '#0fbfb8'
 
     const x = d3.scaleBand()
-      .domain(d3.range(data.length))
-      .range([ margin.left, width - margin.right ])
-      .padding(0.7)
+      .domain(d3.range(endMonth))
+      .range([margin.left+10, width - margin.right])
+
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d.lastYearValue > d.thisYearValue ? d.lastYearValue: d.thisYearValue)]).nice()
+      .range([ height - margin.bottom - labelHeight, margin.top ]).clamp(true)
 
     const xAxis = g => g
       .style('font-size', '12px')
-      .attr('transform', `translate(0,${ height - margin.bottom })`)
-      .call(d3.axisBottom(x).tickFormat(i => data[i].date).tickSizeOuter(0))
+      .style('color', '#4b4b4b')
+      .attr('font-weight', 800)
+      .style('font-family', 'NanumSquare')
+      .attr('transform', `translate(0,${height - margin.bottom + 10 - labelHeight})`)
+      .call(d3.axisBottom(x).tickFormat(i => i+1).tickSizeOuter(0))
       .call(g => g.selectAll('line').remove())
-      .call(g => g.select('.domain').attr('stroke-width',0.5))
+      .call(g => g.select('.domain').remove())
 
     const yAxis = g => g
-      .style('color', '#bbb')
+      .style('color', '#bbb').style('font-size', '12px')
       .attr('transform', `translate(${ margin.left },0)`)
-      .call(d3.axisLeft(y).ticks(5).tickFormat(d => d/10000 + "만원"))
-      // .call(d3.axisLeft(y))
-      // .call(d3.axisLeft(y).ticks(10))
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d => d/10000 + '만원'))
       .call(g => g.selectAll('line')
-        .attr('x2', width)
+        .attr('x2', width - margin.left)
         .style('stroke', '#f5f5f5'))
       .call(g => g.select('.domain').remove())
       .call(g => g.append('text')
@@ -72,48 +67,110 @@
         .attr('text-anchor', 'start')
         .text(data.y)
       )
-      .call(g => g.append('text')
-        .attr('x', -120)
-        .attr('y', -45)
-        .attr('fill', 'currentColor')
-        .attr('text-anchor', 'middle')
-        .attr('transform', `rotate(269,0,0)`)
-        .text('금액(원)')
-      )
+      // .call(g => g.append('text')
+      //   .attr('x', -120)
+      //   .attr('y', -45)
+      //   .attr('fill', 'currentColor')
+      //   .attr('text-anchor', 'middle')
+      //   .attr('transform', `rotate(269,0,0)`)
+      //   .text('금액(원)')
+      // )
 
-    svg.append('g')
-      .call(xAxis);
+    svg.append('g').call(xAxis);
 
-    svg.append('g')
-      .call(yAxis);
+    svg.append('g').call(yAxis);
 
+    // 잔년
     svg.append('g')
-      .attr('fill', color)
+      .attr('fill', label1Color)
       .attr('class', 'line-data')
       .selectAll('rect')
       .data(data)
       .join('rect')
-      .attr('x', (d, i) => x(i) + (x.bandwidth() / 2 - 3))
-      .attr('y', d => y(d.value1))
+      .attr('x', (d, i) => x(i) + (x.bandwidth() / 2 - 4))
+      .attr('y', d => d.lastYearValue ? y(d.lastYearValue) : 0)
       // .attr('rx', '3%')
-      .attr('height', d => y(0) - y(d.value1))
+      .attr('height', d => d.lastYearValue ?  y(0) - y(d.lastYearValue) : 0)
       .attr('width', '3')
       .attr('opacity', 0)
       .transition().duration(1300).ease(d3.easeQuadInOut).attr('opacity',1)
 
+    //금년
     svg.append('g')
-      .attr('fill', '#ddd')
+      .attr('fill', label2Color)
       .attr('class', 'line-data')
       .selectAll('rect')
       .data(data)
       .join('rect')
-      .attr('x', (d, i) => x(i) + (x.bandwidth() / 2 - 8 + 10))
-      .attr('y', d => y(d.value2))
-      // .attr('rx', '1%')
-      .attr('height', d => y(0) - y(d.value2))
+      .attr('x', (d, i) => x(i) + (x.bandwidth() / 2 + 2))
+      .attr('y', d => d.thisYearValue ? y(d.thisYearValue) : null)
+      .attr('height', d => d.thisYearValue ? y(0) - y(d.thisYearValue) : null)
       .attr('width', '3')
       .attr('opacity', 0)
       .transition().duration(1300).ease(d3.easeQuadInOut).attr('opacity',1)
+
+    //타이틀
+    const title = svg.append('text')
+      .attr('x', ((width-margin.left) / 2 + margin.left))
+      .attr('y', (margin.top / 2))
+      .attr('text-anchor', 'middle')
+      .attr('font-weight', 800)
+      .style('font-size', '14px')
+      .attr('fill', '#4b4b4b')
+      .text('우리집')
+    title.append('tspan').text(' 연간 ').style('font-size', '18px')
+    title.append('tspan').text('에너지 누적 사용금액')
+
+    //label(마커)영역
+    svg.append('rect')
+      .attr('transform', `translate(${(width-230)/2},${height - labelHeight})`)
+      .attr('width',230).attr('height', 5)
+      .attr('x',0).attr('y',0)
+      .attr('fill','#f8f8f8')
+      .attr('stroke-width','27')
+      .attr('stroke','#f8f8f8')
+      .attr('stroke-linecap','round')
+      .attr('stroke-linejoin','round')
+
+    const label1MarkerGroup = svg.append('g')
+      .attr('transform', `translate(${margin.left + 10},${height - labelHeight + 7})`)
+      .attr('class', 'monthMarkerGroup')
+    const label1Marker = label1MarkerGroup.append('g')
+      .attr('transform', 'translate(-19,-4)')
+    label1Marker.append('circle')
+      .attr('class', 'myPoint')
+      .attr('cx', 0).attr('cy', 0).attr('r', 7)
+      .attr('fill', label1Color)
+    label1Marker.append('line')
+      .attr('x1', 0).attr('x2', 12)
+      .attr('y1', 0).attr('y2', 0)
+      .attr('transform', 'translate(2,0)')
+      .style('stroke', label1Color).attr('stroke-width','3')
+    label1MarkerGroup.append('text')
+      .text('전년 사용량')
+      .attr('font-size','14')
+      .attr('fill', '#4b4b4b')
+
+    const label2MarkerGroup = svg.append('g')
+      .attr('transform', `translate(180,${height - labelHeight + 7})`)
+      .attr('class', 'monthMarkerGroup')
+
+    const label2Marker = label2MarkerGroup.append('g')
+      .attr('transform', 'translate(-19,-4)')
+    label2Marker.append('circle')
+      .attr('class', 'myPoint')
+      .attr('cx', 0).attr('cy', 0).attr('r', 7)
+      .attr('fill', label2Color)
+    label2Marker.append('line')
+      .attr('x1', 0).attr('x2', 12)
+      .attr('y1', 0).attr('y2', 0)
+      .attr('transform', 'translate(2,0)')
+      .style('stroke', label2Color).attr('stroke-width','3')
+    label2MarkerGroup.append('text')
+      .text('금년 사용량')
+      .attr('font-size','14')
+      .attr('fill', '#4b4b4b')
+    //label 영역
   }
 </script>
 </html>

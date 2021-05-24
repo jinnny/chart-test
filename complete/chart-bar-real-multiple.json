@@ -1,64 +1,62 @@
-{
-  "data": [
-    {
-      "date": 1,
-      "value1": 100000,
-      "value2": 200000
-    },
-    {
-      "date": 2,
-      "value1": 300000,
-      "value2": 100000
-    },
-    {
-      "date": 3,
-      "value1": 200000,
-      "value2": 55000
-    },
-    {
-      "date": 4,
-      "value1": 200000,
-      "value2": 55000
-    },
-    {
-      "date": 5,
-      "value1": 200000,
-      "value2": 55000
-    },
-    {
-      "date": 6,
-      "value1": 200000,
-      "value2": 55000
-    },
-    {
-      "date": 7,
-      "value1": 200000,
-      "value2": 55000
-    },
-    {
-      "date": 8,
-      "value1": 200000,
-      "value2": 55000
-    },
-    {
-      "date": 9,
-      "value1": 200000,
-      "value2": 55000
-    },
-    {
-      "date": 10,
-      "value1": 200000,
-      "value2": 55000
-    },
-    {
-      "date": 11,
-      "value1": 200000,
-      "value2": 55000
-    },
-    {
-      "date": 12,
-      "value1": 200000,
-      "value2": 55000
-    }
-  ]
-}
+ [
+  {
+    "date": "2021-01-01",
+    "lastYearValue": 100000,
+    "thisYearValue": 200000
+  },
+  {
+    "date": "2021-02-01",
+    "lastYearValue": 160000,
+    "thisYearValue": 100000
+  },
+  {
+    "date": "2021-03-01",
+    "lastYearValue": 200000,
+    "thisYearValue": 55000
+  },
+  {
+    "date": "2021-04-01",
+    "lastYearValue": 200000,
+    "thisYearValue": 55000
+  },
+  {
+    "date": "2021-05-01",
+    "lastYearValue": 180000,
+    "thisYearValue": 55000
+  },
+  {
+    "date": "2021-06-01",
+    "lastYearValue": 10000,
+    "thisYearValue": 55000
+  },
+  {
+    "date": "2021-07-01",
+    "lastYearValue": 20000,
+    "thisYearValue": 55000
+  },
+  {
+    "date": "2021-08-01",
+    "lastYearValue": 30000,
+    "thisYearValue": 55000
+  },
+  {
+    "date": "2021-09-01",
+    "lastYearValue": null,
+    "thisYearValue": 55000
+  },
+  {
+    "date": "2021-10-01",
+    "lastYearValue": 140000,
+    "thisYearValue": 55000
+  },
+  {
+    "date": "2021-11-01",
+    "lastYearValue": 50000,
+    "thisYearValue": 55000
+  },
+  {
+    "date": "2021-12-01",
+    "lastYearValue": 20000,
+    "thisYearValue": null
+  }
+]

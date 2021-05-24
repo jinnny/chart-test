@@ -18,15 +18,14 @@
 <body>
 </body>
 <script>
-  let jsonLocation = 'chart-bar-real.json';
+  const jsonLocation = 'chart-bar-real.json';
   $.getJSON(jsonLocation, function(data){
-    drawChart(data.data)
+    drawChart(data)
     // $.each(data, function(I, item){
     //   drawChart(data)
     // });
   });
   function drawChart(data) {
-    console.log(data)
     const margin = { top: 30, right: 0, bottom: 30, left: 60 }
     const width = 300;
     const height = 250;

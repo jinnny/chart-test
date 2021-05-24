@@ -46,11 +46,12 @@
     const height = 270;
     const labelHeight = 30;
     const margin = {top: 50, right: 20, bottom: 70, left: 60};
-
     const standardDate = data.yearMonth.split('-')
     const standardFirstDate = new Date(standardDate[0],standardDate[1]-1,1)
     const standardEnd = new Date(standardDate[0],standardDate[1],0)
     const standardEndDate = standardEnd.getDate()
+    const label1Color = '#04baff'
+    const label2Color = '#57fff2'
 
     const x = d3.scaleTime()
       .domain([standardFirstDate, standardEnd])
@@ -128,49 +129,47 @@
       .attr('stroke-linecap','round')
       .attr('stroke-linejoin','round')
 
-    const monthMarkerGroup = svg.append('g')
+    const label1MarkerGroup = svg.append('g')
       .attr('transform', `translate(${margin.left},${height - labelHeight + 7})`)
       .attr('class', 'monthMarkerGroup')
-
-    const monthMarker = monthMarkerGroup.append('g')
-      .attr('transform', 'translate(-17,-4)')
-    monthMarker.append('circle')
+    const label1Marker = label1MarkerGroup.append('g')
+      .attr('transform', 'translate(-19,-4)')
+    label1Marker.append('circle')
       .attr('class', 'myPoint')
       .attr('cx', 0).attr('cy', 0).attr('r', 7)
-      .attr('fill', '#04baff')
-    monthMarker.append('line')
+      .attr('fill', label1Color)
+    label1Marker.append('line')
       .attr('x1', 0).attr('x2', 12)
       .attr('y1', 0).attr('y2', 0)
-      .attr('transform', 'translate(2,1)')
-      .style('stroke', '#04baff').attr('stroke-width','3')
-    monthMarkerGroup.append('text')
+      .attr('transform', 'translate(2,0)')
+      .style('stroke', label1Color).attr('stroke-width','3')
+    label1MarkerGroup.append('text')
       .text('월간 누적 금액')
       .attr('font-size','14')
       .attr('fill', '#4b4b4b')
 
-    const dayMarkerGroup = svg.append('g')
+    const label2MarkerGroup = svg.append('g')
       .attr('transform', `translate(180,${height - labelHeight + 7})`)
       .attr('class', 'monthMarkerGroup')
-
-    const dayMarker = dayMarkerGroup.append('g')
-      .attr('transform', 'translate(-17,-4)')
-    dayMarker.append('circle')
+    const label2Marker = label2MarkerGroup.append('g')
+      .attr('transform', 'translate(-19,-4)')
+    label2Marker.append('circle')
       .attr('class', 'myPoint')
       .attr('cx', 0).attr('cy', 0).attr('r', 7)
-      .attr('fill', '#57fff2')
-    dayMarker.append('line')
+      .attr('fill', label2Color)
+    label2Marker.append('line')
       .attr('x1', 0).attr('x2', 12)
       .attr('y1', 0).attr('y2', 0)
-      .attr('transform', 'translate(2,1)')
-      .style('stroke', '#57fff2').attr('stroke-width','3')
-    dayMarkerGroup.append('text')
+      .attr('transform', 'translate(2,0)')
+      .style('stroke', label2Color).attr('stroke-width','3')
+    label2MarkerGroup.append('text')
       .text('일일 사용 금액')
       .attr('font-size','14')
       .attr('fill', '#4b4b4b')
     //label 영역
     // bar 데이터
     svg.append('g')
-      .attr('fill', '#57fff2')
+      .attr('fill', label2Color)
       .attr('class', 'line-data')
       .selectAll('rect')
       .data(data.value)
@@ -186,22 +185,21 @@
     svg.append('path')
       .datum(data.value)
       .attr('fill', 'none')
-      .attr('stroke', '#00baff')
+      .attr('stroke', label1Color)
       .attr('stroke-width', 3)
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
       .attr('d', line)
       .attr('class', 'path')
 
-    const pathOutline = document.querySelector('.path');
-    const pathOutlineT = d3.select('.path');
-    const pathLineL = pathOutline.getTotalLength();
+    const pathOutline = document.querySelector('.path')
+    const pathOutlineT = d3.select('.path')
+    const pathLineL = pathOutline.getTotalLength()
     pathOutlineT.attr('stroke-dasharray', pathLineL).attr('stroke-dashoffset', pathLineL)
-
   }
-  let jsonLocation = 'chart-area-line-multiple.json';
+  const jsonLocation = 'chart-area-line-multiple.json'
   $.getJSON(jsonLocation, function(data) {
-    drawChart(data.data)
+    drawChart(data)
   })
   // svg.node();
 </script>

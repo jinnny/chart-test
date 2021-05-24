@@ -1,6 +1,4 @@
 {
-  "data":
-  {
     "yearMonth": "2021-04",
     "lastYearValue": 180000,
     "value":  [
@@ -125,5 +123,4 @@
         "value": 20000
       }
     ]
-  }
 }
