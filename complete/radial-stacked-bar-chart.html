@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>radial4</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <script src="../assets/js/vendors/d3.v6.js"></script>
+<!--    <script src="https://d3js.org/d3.v4.js"></script>-->
+<!--    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.js"></script>-->
+  <!--  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>-->
+  <script src="../assets/js/vendors/jquery.min.js"></script>
+  <style>
+      /*흰색 가이드라인*/
+      .gridlines {
+          fill: none;
+          stroke: #fff;
+          stroke-width: 1px
+      }
+  </style>
+</head>
+<body>
+<script>
+  const jsonLocation = 'radial-stacked-bar-chart.json';
+  $.getJSON(jsonLocation, function(data) {
+    drawRacialChart(data)
+  })
+
+  function drawRacialChart(data) {
+    const margin = 0,
+      width = 280,
+      height = 280,
+      maxBarHeight = height / 2 - (margin + 70),
+      innerRadius = 30,
+      chartAreaCircleRadius = maxBarHeight + 50
+
+    const svg = d3.select('body')
+      .append('svg')
+      .attr('width', width)
+      .attr('height', height)
+      .attr('class', 'chart-svg')
+      .append('g')
+      .attr('class', 'chart')
+      .attr('transform', `translate(${width / 2},${height / 2})`);
+
+    const defs = svg.append('defs');
+    const gradients = defs
+      .append('linearGradient')
+      .attr('id', 'gradient-chart-area')
+      .attr('x1', '50%')
+      .attr('y1', '0%')
+      .attr('x2', '50%')
+      .attr('y2', '100%')
+      .attr('spreadMethod', 'pad');
+
+    gradients.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', '#EDF0F0')
+      .attr('stop-opacity', 1);
+
+    gradients.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', '#ACB7BE')
+      .attr('stop-opacity', 1);
+
+    const gradients2 = defs
+      .append('linearGradient')
+      .attr('id', 'gradient-questions')
+      .attr('x1', '50%')
+      .attr('y1', '0%')
+      .attr('x2', '50%')
+      .attr('y2', '100%')
+      .attr('spreadMethod', 'pad');
+
+    gradients2.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', '#F6F8F9')
+      .attr('stop-opacity', 1);
+
+    gradients2.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', '#D4DAE0')
+      .attr('stop-opacity', 1);
+
+    const gradients3 = defs
+      .append('radialGradient')
+      .attr('id', 'gradient-bars')
+      .attr('gradientUnits', 'userSpaceOnUse')
+      .attr('cx', '0')
+      .attr('cy', '0')
+      .attr('r', maxBarHeight)
+      .attr('spreadMethod', 'pad');
+
+    gradients3.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', '#FFC9D6');
+
+    gradients3.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', '#FE8AA6');
+
+    svg.append('circle')
+      .attr('r', chartAreaCircleRadius + 15)
+      .classed('time-circle', true)
+      .attr('fill', '#E9EEF2');
+
+    svg.append('circle')
+      .attr('r', chartAreaCircleRadius)
+      .classed('chart-area-circle', true)
+      .attr('fill', '#fff');
+
+    svg.append('circle')
+      .attr('r', innerRadius)
+      .classed('center-circle', true)
+      .attr('fill', '#fff');
+
+    // d3.csv(csv, function(error, data) {
+      let times = data.map(function(d, i) {
+        return d.time;
+      });
+
+      const timeCounts = {};
+      for (let i = 0; i < times.length; i++) {
+        let num = times[i];
+        timeCounts[num] = timeCounts[num] ? timeCounts[num] + 1 : 1;
+      }
+
+      times = times.filter(function(v, i) {
+        return times.indexOf(v) == i;
+      });
+      const numCatBars = times.length;
+
+      let angle = 0,
+        rotate = 0;
+
+      data.forEach(function(d, i) {
+        d.startAngle = angle;
+        angle += (2 * Math.PI) / numCatBars / timeCounts[d.time];
+        d.endAngle = angle;
+
+        d.rotate = rotate;
+        rotate += 360 / numCatBars / timeCounts[d.time];
+      });
+
+      // time label
+      const arc_time_label = d3.arc()
+        .startAngle(function(d, i) {
+          return (i * 2 * Math.PI) / numCatBars;
+        })
+        .endAngle(function(d, i) {
+          return ((i + 1) * 2 * Math.PI) / numCatBars;
+        })
+        .innerRadius(chartAreaCircleRadius)
+        .outerRadius(chartAreaCircleRadius + 16);
+    const timeLabelText = svg.selectAll('.time_label_arc')
+      .data(times)
+      .enter().append('path')
+      .attr('id', function(d, i) {
+        return 'time_label_' + i;
+      })
+      .attr('fill', 'none')
+      .attr('d', arc_time_label);
+
+    timeLabelText.each(function(d, i) {
+      const firstArcSection = /(^.+?)L/;
+      let newArc = firstArcSection.exec(d3.select(this).attr('d'))[1];
+      newArc = newArc.replace(/,/g, ' ');
+
+      const startAngle = (i * 2 * Math.PI) / numCatBars,
+        endAngle = ((i + 1) * 2 * Math.PI) / numCatBars;
+
+      if (startAngle > Math.PI / 2 && startAngle < 3 * Math.PI / 2 && endAngle > Math.PI / 2 && endAngle < 3 * Math.PI / 2) {
+        const startLoc = /M(.*?)A/,
+          middleLoc = /A(.*?)0 0 1/,
+          endLoc = /0 0 1 (.*?)$/;
+        const newStart = endLoc.exec(newArc)[1];
+        const newEnd = startLoc.exec(newArc)[1];
+        const middleSec = middleLoc.exec(newArc)[1];
+
+        newArc = 'M' + newStart + 'A' + middleSec + '0 0 0 ' + newEnd;
+      }
+
+      d3.select(this).attr('d', newArc);
+    });
+
+      svg.selectAll('.time-label-text')
+        .data(times)
+        .enter().append('text')
+        .attr('class', 'time-label-text')
+        .attr('font-size', 11)
+        .attr('dy', function(d, i) {
+          const startAngle = (i * 2 * Math.PI) / numCatBars,
+            endAngle = ((i + 1) * 2 * Math.PI) / numCatBars;
+          return (startAngle > Math.PI / 2 && startAngle < 3 * Math.PI / 2 && endAngle > Math.PI / 2 && endAngle < 3 * Math.PI / 2 ? -4 : 14);
+        })
+        .append('textPath')
+        .attr('startOffset', '50%')
+        .style('text-anchor', 'middle')
+        .attr('xlink:href', function(d, i) {
+          return '#time_label_' + i;
+        })
+        .text(function(d,i) {
+          if(i%3 === 0) {
+            return d;
+          }
+        });
+
+      /* bars */
+      const arc = d3.arc()
+        .startAngle(function(d, i) {
+          return d.startAngle;
+        })
+        .endAngle(function(d, i) {
+          return d.endAngle;
+        })
+        .innerRadius(innerRadius);
+
+      const radialBars = svg.selectAll('.radial-bars')
+        .data(data)
+        .enter().append('path')
+        .classed('radial-bars', true)
+        .each(function(d) {
+          d.outerRadius = innerRadius;
+        })
+        .attr('d', arc).
+        attr('fill','url(#gradient-bars)')
+    // outlineT.transition().duration(1300).ease(d3.easeQuadInOut).style('stroke-dashoffset', toOffset)
+
+    radialBars.transition().ease(d3.easeQuadInOut).duration(500).delay(function(d, i) {
+        return i * 10;
+      })
+        .attrTween('d', function(d, index) {
+          let i = d3.interpolate(d.outerRadius, x_scale(+d.value));
+          return function(t) {
+            d.outerRadius = i(t);
+            return arc(d, index);
+          };
+        });
+
+      const x_scale = d3.scaleLinear()
+        // .domain([0, d3.max(data, d => d.value)])
+        .domain([0, 100])
+        .range([innerRadius, chartAreaCircleRadius]).clamp(true);
+
+      const y_scale = d3.scaleLinear()
+        // .domain([0, d3.max(data, d => d.value)])
+        .domain([0, 100])
+        .range([-innerRadius, -chartAreaCircleRadius]).clamp(true);
+
+    // white circle line
+      svg.selectAll('circle.x.minor')
+        .data(y_scale.ticks(10))
+        .enter().append('circle')
+        .classed('gridlines minor', true)
+        .attr('r', function(d) {
+          return x_scale(d);
+        });
+
+      // white lines
+      svg.selectAll('line.y.major')
+        .data(times)
+        .enter().append('line')
+        .classed('gridlines major', true)
+        .attr('y1', -innerRadius)
+        .attr('y2', -chartAreaCircleRadius)
+        .attr('transform', function(d, i) {
+          return 'rotate(' + (i * 360 / numCatBars) + ')';
+        });
+  }
+</script>
+</body>
+</html>
