@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+<style>
+    .test2 {
+        width: 100%;
+        height: 300px;
+        background:#10b1fc }
+    .test {
+        width: 345px;
+        height: 120px;
+        padding: 20.4px 9px 14.6px 15px;
+        border-radius: 8px;
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+        background-color: rgba(255, 255, 255, 0.3);
+        margin-top: -100px;
+        margin-left: auto;
+        margin-right: auto;
+
+    }</style>
+<body>
+
+<h1>Show Email Fields</h1>
+
+<h3>Show an email field (allows only one email address):</h3>
+<form action="/action_page.php">
+  <label for="email">Enter your email:</label>
+  <input type="email" id="email" name="email">
+  <input type="submit">
+</form>
+
+<h3>Show an email field (allows multiple email addresses). Separate each email address with a comma:</h3>
+<form action="/action_page.php">
+  <label for="emails">Enter email addresses:</label>
+  <input type="email" id="emails" name="emails" multiple>
+  <input type="submit">
+</form>
+<div class="test2">
+</div>
+<div class="test">
+  ddd
+</div>
+</body>
+</html>
