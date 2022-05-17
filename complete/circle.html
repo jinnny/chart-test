@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>영역차트 원차트</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<!--  <script src="../assets/js/vendors/d3.v6.js"></script>-->
+  <script src="http://d3js.org/d3.v4.min.js"></script>
+  <script src="../assets/js/vendors/jquery.min.js"></script>
+  <link rel="stylesheet" href="../assets/style/default.css">
+  <style>
+    .dashboard {
+
+    }
+    .x-axis .tick:hover text {
+      fill: #32373c !important;
+    }
+    .y-axis .tick:nth-child(even):not(:last-child) line {
+      stroke-dasharray: 4;
+    }
+    .y-axis .tick:nth-child(even):not(:last-child) text {
+      display: none;
+    }
+    .path {
+        -moz-animation: lineani 1.3s linear forwards;
+        -webkit-animation: lineani 1.3s linear forwards;
+        animation: lineani 1.3s linear forwards;
+    }
+    @-moz-keyframes lineani {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+    @-webkit-keyframes lineani {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+    @keyframes lineani {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+    .shadow {
+      filter: url('#dropshadow');
+    }
+    .tooltip .tooltip-content {
+      margin-top: 17px;
+    }
+    .tooltip .data-data {
+      font-size: 14px;
+      color: #32373c;
+    }
+    .tooltip .data-label {
+      font-size: 12px;
+    }
+    .tooltip {
+      display: none;
+      padding: 12px 21px 12px 20px;
+      position: absolute;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px 0 rgba(39, 70, 127, 0.3);
+      border: solid 1px #4c8cff;
+      background-color: rgba(255, 255, 255, 0.95);
+      text-align: center;
+      font-size: 14px;
+    }
+    .tooltip .tooltip-content-data-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 1px;
+      height: 45px;
+      background-color: #e8f0ff;
+    }
+    .tooltip .tooltip-content-data {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      position: relative;
+      height: 45px;
+    }
+    .tooltip .tooltip-content-data__data .data-label {
+      display: block;
+    }
+    .tooltip .tooltip-content-data__data {
+      width: 80px;
+      display: inline-block;
+    }
+    .tooltip .tooltip-content-data__data.in {
+      position: relative;
+      color: #ff4d75;
+    }
+    .tooltip .tooltip-content-data__data.out {
+      color: #4c8cff;
+    }
+    .chart-area {
+      width: 100%;
+      height: 320px;
+    }
+  </style>
+</head>
+<body>
+<div class="circle-chart-area">
+</div>
+<script>
+  const print = {
+    "text": "인쇄 현황",
+    "color1": "#ffda79",
+    "color2": "#ffb344",
+    "standardAmount": 234000,
+    "currentAmount": 200000
+  }
+  circleChart('.circle-chart-area', print)
+  function circleChart (element, data) {
+    const width = 90,
+      height = 90,
+      twoPi = -2 * Math.PI,
+      current = data.currentAmount,
+      max = data.standardAmount,
+      arc = d3.arc()
+        .startAngle(0)
+        .innerRadius(width/3-1)
+        .outerRadius(width/3-1),
+      smallArc = d3.arc()
+        .startAngle(0)
+        .innerRadius(width/2-8)
+        .outerRadius(width/2-8)
+    let progress = 0
+    const ratio = parseInt(current/max*100)
+
+    const svg = d3.select(element)
+      .append('svg')
+      .attr('class','energy-circle-chart')
+      .attr('width', width)
+      .attr('height', height)
+      .append('g')
+      .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+
+    const grad = svg.append('defs').append('linearGradient')
+      .attr('id', 'circleGrid')
+      .attr('x1', '0%')
+      .attr('x2', '0%')
+      .attr('y1', '0%')
+      .attr('y2', '100%')
+
+    grad.append('stop')
+      .attr('offset', '0%')
+      .style('stop-color', data.color1);
+
+    grad.append('stop')
+      .attr('offset', '100%')
+      .style('stop-color', data.color2);
+
+    svg.append('path')
+      .attr('class', 'inner-circle')
+      .attr('stroke-width','5')
+      .attr('stroke', '#edeff4')
+      .attr('d', arc.endAngle(twoPi));
+
+    const foreground = svg.append('path')
+      .attr('class', 'foreground').attr('stroke-width','5')
+      .attr('stroke', 'url(#circleGrid)')
+      .attr('fill','none')
+      .attr('stroke-linecap','round')
+      .attr('stroke-linejoin','round')
+
+    svg.append('text').datum(progress)
+      .attr('class','text-percentage')
+      .attr('fill', '#32373c')
+      .attr('font-size', '16')
+      .attr('text-anchor', 'middle')
+      .attr('y',5)
+      .attr('font-weight', '800')
+
+
+    // 가운데 수치표시
+    function countText(time,progress){
+      const textPercentageContainer = d3.select('.text-percentage');
+      let i = 0;
+      const intervalTime = Math.abs(time / progress)
+      if(progress > 100) {
+        const timerID = setInterval(function () {
+          i++;
+          textPercentageContainer.html(`${i}%`);
+          if (i === Math.abs(progress-100)) clearInterval(timerID);
+        }, intervalTime);
+      }else if(progress === 100) {
+        const timerID = setInterval(function () {
+          i++;
+          textPercentageContainer.html(`${i}%`);
+          if (i === Math.abs(progress)) clearInterval(timerID);
+        }, intervalTime);
+      }else {
+        const timerID = setInterval(function () {
+          i++;
+          textPercentageContainer.html(`${i}%`);
+          if (i === Math.abs(progress)) clearInterval(timerID);
+        }, intervalTime);
+      }
+    }
+    countText(1300,ratio);
+
+    const maxCompare = current / max > 1 ? 1 : (current / max)
+    const i = d3.interpolate(progress, maxCompare);
+    foreground.transition().duration(500).delay(500).tween('progress', function() {
+      return function(t) {
+        progress = i(t);
+        foreground.attr('d', smallArc.endAngle(twoPi * (progress)));
+      };
+    })
+  }
+</script>
+</body>
+</html>

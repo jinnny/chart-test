@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>영역차트 데이터1</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-navbutton-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<!--  <script src="../assets/js/vendors/d3.v6.js"></script>-->
+  <script src="http://d3js.org/d3.v4.min.js"></script>
+  <script src="../assets/js/vendors/jquery.min.js"></script>
+  <link rel="stylesheet" href="../assets/style/default.css">
+  <style>
+    .x-axis .tick:hover text {
+      fill: #32373c !important;
+    }
+    .y-axis .tick:nth-child(even):not(:last-child) line {
+      stroke-dasharray: 4;
+    }
+    .y-axis .tick:nth-child(even):not(:last-child) text {
+        display: none;
+    }
+  .path {
+      -moz-animation: lineani 1.3s linear forwards;
+      -webkit-animation: lineani 1.3s linear forwards;
+      animation: lineani 1.3s linear forwards;
+  }
+    @-moz-keyframes lineani {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+    @-webkit-keyframes lineani {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+    @keyframes lineani {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+    .shadow {
+      filter: url('#dropshadow');
+    }
+    .tooltip .tooltip-content {
+      margin-top: 17px;
+    }
+    .tooltip .data-data {
+      font-size: 14px;
+      color: #32373c;
+    }
+    .tooltip .data-label {
+      font-size: 12px;
+    }
+    .tooltip {
+      display: none;
+      padding: 12px 21px 12px 20px;
+      position: absolute;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px 0 rgba(39, 70, 127, 0.3);
+      border: solid 1px #4c8cff;
+      background-color: rgba(255, 255, 255, 0.95);
+      text-align: center;
+    }
+    .tooltip .tooltip-content-data-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 1px;
+      height: 45px;
+      background-color: #e8f0ff;
+    }
+    .tooltip .tooltip-content-data {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      position: relative;
+      height: 45px;
+    }
+    .tooltip .tooltip-content-data__data .data-label {
+      display: block;
+    }
+    .tooltip .tooltip-content-data__data {
+      width: 80px;
+      display: inline-block;
+    }
+    .tooltip .tooltip-content-data__data.in {
+      position: relative;
+      color: #ff4d75;
+    }
+    .tooltip .tooltip-content-data__data.out {
+      color: #4c8cff;
+    }
+    .chart-area {
+      width: 100%;
+      height: 320px;
+    }
+  </style>
+</head>
+<script>
+  function removeChart (element) {
+    d3.select(element).remove()
+  }
+  function drawChart (data, w) {
+    const width = w;
+    const height = 327;
+    const margin = {top: 54, right: 10, bottom: 70, left: 60};
+    const startEndSpace = 44
+    const dayArray = data[0].values.map(item =>(item.date));
+    const chartHeight = height - margin.bottom - margin.top
+    const x = d3.scalePoint()
+      .domain(dayArray)
+      .range([startEndSpace*2, width - startEndSpace])
+
+    const maxY = d3.max(data[0].values, d => d.value) >= d3.max(data[1].values, d => d.value) ? d3.max(data[0].values, d => d.value) : d3.max(data[1].values, d => d.value)
+    const y = d3.scaleLinear()
+      .domain([0, maxY]).nice()
+      .range([chartHeight + margin.top, margin.top]).clamp(true)
+
+
+    const xAxis = g => g
+      .attr('transform', `translate(0, ${height - 46 })`)
+      .style('font-size', `12px`).style('fill', '#4b4b4b').attr('font-weight', 800).attr('class', 'x-axis')
+      .call(d3.axisBottom(x).ticks().tickFormat(d => d))
+      .call(g => g.selectAll('line').remove())
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('text')
+        .style('fill', '#9499ab')).style('font-size', `12px`).style('font-weight', 500)
+
+    const yAxis = g => g
+      .attr('transform', `translate(${margin.left},0)`).attr('class', 'y-axis')
+      .call(d3.axisLeft(y).tickFormat((d) => d.toLocaleString()))
+      .call(g => g.select('.domain').remove())
+      .call(g => g.select('.domain').remove())
+      .call(g => g.selectAll('line')
+        .attr('x2', width - margin.left)
+        .style('stroke', '#edeff4'))
+      .call(g => g.selectAll('text')
+        .style('fill', '#9499ab')).style('font-size', `12px`).style('font-weight', 500)
+
+    const line = d3.line()
+      .curve(d3.curveBasis)
+      .x(d => x(d.date))
+      .y(d => y(d.value));
+
+    const area = d3.area()
+      .curve(d3.curveBasis)
+      .x(d => x(d.date))
+      .y0(y(0))
+      .y1(d => y(d.value));
+
+    const svg = d3.select('.chart-area').append('svg').attr('class', 'chart').attr('width', width).attr('height', height);
+
+    svg.append('g').call(xAxis);
+    svg.append('g').call(yAxis);
+
+    //label
+    const labelGroup = svg.append('g')
+      .attr('transform', `translate(${width - 130}, 30)`)
+      .attr('class', 'label')
+    const label1Marker = labelGroup.append('g')
+    label1Marker.append('text')
+      .text('생산')
+      .attr('font-size','14')
+      .attr('fill', '#4b4b4b')
+    label1Marker.append('rect')
+      .attr('class', 'myPoint')
+      .attr('rx', 3).attr('ry', 3).attr('x', 0).attr('y', 0).attr('width', 12).attr('height', 5)
+      .attr('fill', data[0].color)
+      .attr("transform", "translate(30,-6)");
+
+    const label2Marker = labelGroup.append('g').attr("transform", "translate(60,0)");
+    label2Marker.append('text')
+      .text('매출')
+      .attr('font-size','14')
+      .attr('fill', '#4b4b4b')
+    label2Marker.append('rect')
+      .attr('class', 'myPoint')
+      .attr('rx', 3).attr('ry', 3).attr('x', 0).attr('y', 0).attr('width', 12).attr('height', 5)
+      .attr('fill', data[1].color)
+      .attr("transform", "translate(30,-6)");
+
+    // 선1 -- 그림자
+    const line1Shadow = svg.append("defs")
+      .append("filter")
+      .attr("id", "dropshadow")
+      .append("feDropShadow")
+      .attr("dx", 0)
+      .attr("dy", 5)
+      .attr("stdDeviation", 0.5)
+      .attr("flood-color", 'rgba(0, 0, 0, 0.08)');
+
+    // 선1 -- 영역그라데이션추가
+    const grad = svg.append('defs').append('linearGradient')
+      .attr('id', 'grad')
+      .attr('x1', '0%')
+      .attr('x2', '0%')
+      .attr('y1', '0%')
+      .attr('y2', '100%');
+
+    grad.append('stop')
+      .attr('offset', '50%')
+      .style('stop-color', 'rgba(34, 113, 255, 0.15)')
+      .style('stop-opacity', 1);
+
+    grad.append('stop')
+      .attr('offset', '100%')
+      .style('stop-color', 'rgba(128, 214, 255, 0.02')
+      .style('stop-opacity', 0);
+
+
+    // 선1 데이터
+    const value1 = data[0].values
+    // 선1 -- 영역 추가
+    svg.append('path')
+      .datum(value1)
+      .style('fill', 'url(#grad)')
+      .attr('d', line)
+      .attr('d', area)
+      .attr('class', 'area')
+
+    const areaOutlineT = d3.select('.area')
+    const clipPath = svg.append('clipPath').attr('id', 'clip1')
+    const clip = clipPath.append('rect').attr('class','clip-path')
+    clip.attr('x', -width).attr('y', 0).attr('width', width).attr('height', 320);
+
+    // 선1 -- 선추가
+    svg.append('path')
+      .datum(value1)
+      .attr('fill', 'none')
+      .attr('stroke', '#4c8cff')
+      .attr('stroke-width', 2.5)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round')
+      .attr('d', line)
+      .attr('class', 'path line')
+
+
+    // 선1 -- 그림자추가
+    svg.append('path')
+      .datum(value1)
+      .attr('fill', 'none')
+      .attr('stroke', '#4c8cff')
+      .attr('stroke-width', 2.5)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round')
+      .attr('d', line)
+      .attr('class', 'path shadow')
+
+    const pathOutline = document.querySelector('.path');
+    const pathOutlineT = d3.select('.path');
+    const pathLineL = pathOutline.getTotalLength();
+
+    areaOutlineT.attr('id', 'poly-1').attr('clip-path', `url('#clip1')`)
+    pathOutlineT.attr('stroke-dasharray', pathLineL).attr('stroke-dashoffset', pathLineL)
+    clip.transition().duration(1500).ease(d3.easeQuadInOut).attr('transform', `matrix(1,0,0,1,${width},0)`)
+
+  // 선2
+
+    // 선2 데이터
+    const value2 = data[1].values
+
+    // 선2 -- 영역그라데이션추가
+    const grad2 = svg.append('defs').append('linearGradient')
+      .attr('id', 'grad2')
+      .attr('x1', '0%')
+      .attr('x2', '0%')
+      .attr('y1', '0%')
+      .attr('y2', '100%');
+
+    grad2.append('stop')
+      .attr('offset', '16%')
+      .style('stop-color', 'rgba(53, 215, 170, 0.2)')
+      .style('stop-opacity', 1);
+
+    grad2.append('stop')
+      .attr('offset', '100%')
+      .style('stop-color', 'rgba(53, 215, 170, 0.02)')
+      .style('stop-opacity', 0);
+
+
+    //선2 -- 영역 추가
+    svg.append('path')
+      .datum(value2)
+      .style('fill', 'url(#grad2)')
+      .attr('d', line)
+      .attr('d', area)
+      .attr('class', 'area2')
+
+    // 선2 -- 선추가
+    svg.append('path')
+      .datum(value2)
+      .attr('fill', 'none')
+      .attr('stroke', '#35d7aa')
+      .attr('stroke-width', 2.5)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round')
+      .attr('d', line)
+      .attr('class', 'path2 line')
+
+    // 선2 -- 선 그림자
+    svg.append('path')
+      .datum(value2)
+      .attr('fill', 'none')
+      .attr('stroke', '#35d7aa')
+      .attr('stroke-width', 2.5)
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-linecap', 'round')
+      .attr('d', line)
+      .attr('class', 'path2 shadow')
+
+    const area2OutlineT = d3.select('.area2')
+    const clipPath2 = svg.append('clipPath').attr('id', 'clip2')
+    const clip2 = clipPath2.append('rect').attr('class','clip-path')
+    clip2.attr('x', -width).attr('y', 0).attr('width', width).attr('height', height);
+
+    const pathOutline2 = document.querySelector('.path2');
+    const pathOutlineT2 = d3.select('.path2');
+    const pathLineL2 = pathOutline2.getTotalLength();
+
+    area2OutlineT.attr('id', 'poly-1').attr('clip-path', `url('#clip2')`)
+    pathOutlineT2.attr('stroke-dasharray', pathLineL2).attr('stroke-dashoffset', pathLineL2)
+    clip2.transition().duration(1500).ease(d3.easeQuadInOut).attr('transform', `matrix(1,0,0,1,${width},0)`)
+
+
+    let states, tipBox;
+    states = data;
+
+    const tooltip = d3.select('#tooltip');
+
+    const mouseG = svg.append("g")
+      .attr("class", "mouse-over-effects")
+
+    mouseG.append("line") // this is the black vertical line to follow mouse
+      .attr("class", "mouse-line")
+      .data(data)
+      .style("stroke", "black")
+      .style("stroke-width", "1px")
+      .style("opacity", "0")
+      .attr("transform", `translate(0,${margin.top})`);
+
+
+    const lines = document.getElementsByClassName('line');
+    const mousePerLine = mouseG.selectAll('.mouse-per-line')
+      .data(data)
+      .enter()
+      .append("g")
+      .attr("class", "mouse-per-line");
+
+    mousePerLine.append("circle")
+      .attr("r", 3.5)
+      .style("stroke", (d) => {
+        return d.color;
+      })
+      .style("fill", (d) => {
+        return d.color;
+      })
+      .style("stroke-width", "1px")
+      .style("opacity", "0");
+
+    mousePerLine.append("text")
+      .attr("transform", "translate(10,3)");
+
+    mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
+      .attr('width', width - startEndSpace*3)
+      .attr('height', chartHeight)
+      .attr("transform", `translate(${startEndSpace*2},${margin.top})`)
+      .attr('fill', 'none')
+      .attr('pointer-events', 'all')
+      .on('mouseout', function() { // on mouse out hide line, circles and text
+        d3.select(".mouse-line")
+          .style("opacity", "0");
+        d3.selectAll(".mouse-per-line circle")
+          .style("opacity", "0");
+        removeTooltip()
+      })
+      .on('mouseover', function() { // on mouse in show line, circles and text
+        d3.select(".mouse-line")
+          .style("opacity", "1");
+        d3.selectAll(".mouse-per-line circle")
+          .style("opacity", "1");
+        removeTooltip()
+      })
+      .on('mousemove', function() { // mouse moving over canvas
+        var mouse = d3.mouse(this);
+        var xPos = mouse[0] + startEndSpace*2;
+        var domain = x.domain();
+        var range = x.range();
+        var rangePoints = d3.range(range[0]-(startEndSpace), range[1]-(startEndSpace), x.step())
+        var yPos = domain[d3.bisect(rangePoints, (xPos - startEndSpace*2))];
+        console.log(yPos, rangePoints, '$$$$', mouse)
+        var gap = rangePoints[1]- rangePoints[0]
+
+        d3.select(".mouse-line")
+          .attr('x1', x(yPos))
+          .attr('x2', x(yPos))
+          .attr('y1', 0)
+          .attr('y2', chartHeight);
+
+
+        d3.selectAll(".mouse-per-line")
+          .attr("transform", function(d, i) {
+            let beginning = 0
+            let end = lines[i].getTotalLength()
+            let target = null;
+            let pos
+
+            console.log(end,'end', d,'d', i)
+
+            while (true){
+              target = Math.floor((beginning + end) / 2);
+              pos = lines[i].getPointAtLength(target);
+              if ((target === end || target === beginning) && pos.x !== xPos) {
+                break;
+              }
+              console.log('pos', pos)
+              if (pos.x > xPos)      end = target;
+              else if (pos.x < xPos) beginning = target;
+              else break; //position found
+            }
+
+            console.log('x(yPos)', yPos, x(yPos), y(pos.y), pos.y, 'gap', gap)
+            // 점 계속안보이고 해당 좌표에만 보일떄
+            // let currentY;
+            // if(currentY === yPos) {
+            //   console.log('같음')
+            // } else {
+            //   currentY = yPos
+            //   console.log('같지않아서 넣음')
+            //   return
+            // }
+            // console.log('currentY', currentY, yPos)
+
+            // if(Math.ceil(x(yPos)) !== Math.ceil(pos.x)) {
+            //   console.log('사이값')
+            //   return
+            // }else {
+            //   console.log('같다')
+            // }
+            // if(Math.ceil(x(yPos)) - gap/2 >= Math.ceil(pos.x)) {
+            //   console.log('사이값')
+            //   return
+            // }else {
+            //   console.log('같다')
+            // }
+
+            return "translate(" + x(yPos) + "," + pos.y +")";
+          });
+
+          tooltip.html(yPos)
+            .style('display', 'block')
+            .style('left', `${d3.event.pageX + 20}px`)
+            .style('top', `${d3.event.pageY - 20}px`)
+            .selectAll()
+            .data(states).enter()
+            .append('div')
+            .attr('class', 'tooltip-content')
+            .style('color',d => d.color)
+            .html(d => d.name + ': ' + d.values.find(h => h.date === yPos)?.value)
+            .append('div')
+            .attr('class', 'tooltip-content-data')
+            .html(d =>
+              `<span class="tooltip-content-data__data in">
+                <span class="data-label in">IN </span>
+                <span class="data-data">
+                  <img src="in-icon.svg" alt="">
+                  ${d.values.find(h => h.date === yPos)?.in}
+                </span>
+              </span>
+              <span class="tooltip-content-data-line"></span>
+              <span class="tooltip-content-data__data out">
+                <span class="data-label out">OUT </span>
+                <span class="data-data">
+                 <img src="out-icon.svg" alt="">
+                ${d.values.find(h => h.date === yPos)?.out}
+                </div>
+              </span>
+              `
+            )
+      })
+      .on('click', function() { // mouse moving over canvas
+      var mouse = d3.mouse(this);
+      var xPos = mouse[0] + startEndSpace*2;
+      var domain = x.domain();
+      var range = x.range();
+      var rangePoints = d3.range(range[0]-(startEndSpace), range[1]-(startEndSpace), x.step())
+      var yPos = domain[d3.bisect(rangePoints, (xPos - startEndSpace*2))];
+      console.log(yPos, rangePoints, '$$$$', mouse)
+      var gap = rangePoints[1]- rangePoints[0]
+
+      d3.select(".mouse-line")
+        .attr('x1', x(yPos))
+        .attr('x2', x(yPos))
+        .attr('y1', 0)
+        .attr('y2', chartHeight);
+
+
+      d3.selectAll(".mouse-per-line")
+        .attr("transform", function(d, i) {
+          let beginning = 0
+          let end = lines[i].getTotalLength()
+          let target = null;
+          let pos
+
+          console.log(end,'end', d,'d', i)
+
+          while (true){
+            target = Math.floor((beginning + end) / 2);
+            pos = lines[i].getPointAtLength(target);
+            if ((target === end || target === beginning) && pos.x !== xPos) {
+              break;
+            }
+            console.log('pos', pos)
+            if (pos.x > xPos)      end = target;
+            else if (pos.x < xPos) beginning = target;
+            else break; //position found
+          }
+
+          console.log('x(yPos)', yPos, x(yPos), y(pos.y), pos.y, 'gap', gap)
+          // 점 계속안보이고 해당 좌표에만 보일떄
+          // let currentY;
+          // if(currentY === yPos) {
+          //   console.log('같음')
+          // } else {
+          //   currentY = yPos
+          //   console.log('같지않아서 넣음')
+          //   return
+          // }
+          // console.log('currentY', currentY, yPos)
+
+          // if(Math.ceil(x(yPos)) !== Math.ceil(pos.x)) {
+          //   console.log('사이값')
+          //   return
+          // }else {
+          //   console.log('같다')
+          // }
+          // if(Math.ceil(x(yPos)) - gap/2 >= Math.ceil(pos.x)) {
+          //   console.log('사이값')
+          //   return
+          // }else {
+          //   console.log('같다')
+          // }
+
+          return "translate(" + x(yPos) + "," + pos.y +")";
+        });
+
+      tooltip.html(yPos)
+        .style('display', 'block')
+        .style('left', `${d3.event.pageX + 20}px`)
+        .style('top', `${d3.event.pageY - 20}px`)
+        .selectAll()
+        .data(states).enter()
+        .append('div')
+        .attr('class', 'tooltip-content')
+        .style('color',d => d.color)
+        .html(d => d.name + ': ' + d.values.find(h => h.date === yPos)?.value)
+        .append('div')
+        .attr('class', 'tooltip-content-data')
+        .html(d =>
+          `<span class="tooltip-content-data__data in">
+                <span class="data-label in">IN </span>
+                <span class="data-data">
+                  <img src="in-icon.svg" alt="">
+                  ${d.values.find(h => h.date === yPos)?.in}
+                </span>
+              </span>
+              <span class="tooltip-content-data-line"></span>
+              <span class="tooltip-content-data__data out">
+                <span class="data-label out">OUT </span>
+                <span class="data-data">
+                 <img src="out-icon.svg" alt="">
+                ${d.values.find(h => h.date === yPos)?.out}
+                </div>
+              </span>
+              `
+        )
+    });
+
+    function removeTooltip() {
+      if (tooltip) tooltip.style('display', 'none');
+    }
+
+    // tipBox = svg.append('rect')
+    //   .attr('width', width - startEndSpace*3)
+    //   .attr('height', chartHeight)
+    //   .attr('opacity', 0)
+    //   .attr('transform', `translate(${startEndSpace*2}, 0)`)
+    //   // .on('mousemove', drawTooltip)
+    //   .on('mousemove', scalePointPosition)
+    //   .on('mouseout', removeTooltip);
+
+  }
+
+  let jsonLocation = 'multiple-line-over-circle-line-tooltip.json';
+  $.getJSON(jsonLocation, function (data) {
+    window.addEventListener('load', function(event) {
+      drawChart(data, document.querySelector('body').clientWidth)
+    })
+    window.addEventListener('resize', function(event) {
+      removeChart('.chart')
+      drawChart(data, document.querySelector('body').clientWidth)
+    })
+  })
+</script>
+<body>
+<div class="chart-area">
+</div>
+<div id="tooltip" class="tooltip">
+</div>
+</body>
+</html>
